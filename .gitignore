@@ -1,0 +1,8 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+
+.env
+bin/
+__pycache__/
+include/
+lib/
+pyvenv.cfg
