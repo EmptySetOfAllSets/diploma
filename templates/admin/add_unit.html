@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Добавить единицу измерения{% endblock %}
+
+{% block content %}
+<h1>Добавить новую единицу измерения</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.unit.label }}<br>
+        {{ form.unit(size=32) }}
+    </div>
+    <button type="submit">Сохранить</button>
+    <a href="{{ url_for('admin_menu', tab='units') }}">Отмена</a>
+</form>
+{% endblock %}

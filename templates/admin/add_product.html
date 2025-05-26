@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Добавить продукт{% endblock %}
+
+{% block content %}
+<h1>Добавить новый продукт</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}
+    </div>
+    <div>
+        {{ form.type_id.label }}<br>
+        {{ form.type_id() }}
+    </div>
+    <div>
+        {{ form.unit_id.label }}<br>
+        {{ form.unit_id() }}
+    </div>
+    <button type="submit">Сохранить</button>
+    <a href="{{ url_for('admin_menu', tab='products') }}">Отмена</a>
+</form>
+{% endblock %}

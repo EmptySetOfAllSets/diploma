@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Добавить блюдо{% endblock %}
+
+{% block content %}
+<h1>Добавить новое блюдо</h1>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.name.label }}<br>
+        {{ form.name(size=32) }}
+    </div>
+    <div>
+        {{ form.price.label }}<br>
+        {{ form.price() }}
+    </div>
+    <div>
+        {{ form.dish_type_id.label }}<br>
+        {{ form.dish_type_id() }}
+    </div>
+    <button type="submit">Далее: добавить ингредиенты</button>
+</form>
+{% endblock %}

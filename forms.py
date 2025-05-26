@@ -56,3 +56,24 @@ class IngredientForm(FlaskForm):
         super(IngredientForm, self).__init__(*args, **kwargs)
         self.dish_id.choices = [(d.id, d.name) for d in Dish.query.order_by(Dish.name).all()]
         self.groc_id.choices = [(g.id, f"{g.name} ({g.groc_type.type})") for g in Groc.query.join(Groc.groc_type).order_by(Groc.name).all()]
+
+class IngredientFormForDish(FlaskForm):
+    search = StringField('Поиск продукта')
+    product = SelectField('Продукт', coerce=int, validators=[DataRequired()])
+    amount = IntegerField('Количество', validators=[DataRequired(), NumberRange(min=1)])
+    kkal = FloatField('Калории', validators=[DataRequired(), NumberRange(min=0)])
+    def __init__(self, *args, **kwargs):
+        super(IngredientForm, self).__init__(*args, **kwargs)
+        self._update_product_choices()
+    
+    def _update_product_choices(self, search_term=None):
+        query = Groc.query.join(Groc.groc_unit)
+        if search_term:
+            query = query.filter(Groc.name.ilike(f'%{search_term}%'))
+        self.product.choices = [(g.id, f"{g.name} ({g.groc_unit.unit})") 
+                              for g in query.order_by(Groc.name).all()]
+    
+    def __init__(self, *args, **kwargs):
+        super(IngredientFormForDish, self).__init__(*args, **kwargs)
+        self.product.choices = [(g.id, f"{g.name} ({g.groc_unit.unit})") 
+                              for g in Groc.query.join(Groc.groc_unit).order_by(Groc.name).all()]

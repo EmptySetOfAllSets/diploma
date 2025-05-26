@@ -195,7 +195,14 @@
             </tbody>
         </table>
     {% endif %}
-    <!-- В конец каждой таблицы в menu.html добавляем: -->
+    {% if active_tab == 'units' %}
+        <a href="{{ url_for('add_unit') }}" class="btn btn-primary">Добавить единицу</a>
+    {% elif active_tab == 'types' %}
+        <a href="{{ url_for('add_product_type') }}" class="btn btn-primary">Добавить тип</a>
+    {% elif active_tab == 'products' %}
+        <a href="{{ url_for('add_product') }}" class="btn btn-primary">Добавить продукт</a>
+    {% endif %}
+        <!-- В конец каждой таблицы в menu.html добавляем: -->
 
 </body>
 </html>

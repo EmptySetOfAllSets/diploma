@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Добавить ингредиенты{% endblock %}
+
+{% block content %}
+<h1>Добавить ингредиенты для {{ dish.name }}</h1>
+<form method="GET" class="mb-4">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" 
+               placeholder="Поиск продуктов..." value="{{ form.search.data or '' }}">
+        <button type="submit" class="btn btn-primary">Искать</button>
+    </div>
+</form>
+<h2>Текущие ингредиенты:</h2>
+<ul>
+    {% for ing in ingredients %}
+    <li>
+        {{ ing.groc.name }} - {{ ing.amount }} {{ ing.groc.groc_unit.unit }}
+        ({{ ing.kkal }} ккал)
+    </li>
+    {% else %}
+    <li>Пока нет ингредиентов</li>
+    {% endfor %}
+</ul>
+
+<h2>Добавить новый ингредиент:</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div>
+        {{ form.product.label }}<br>
+        {{ form.product() }}
+    </div>
+    <div>
+        {{ form.amount.label }}<br>
+        {{ form.amount() }}
+    </div>
+    <div>
+        {{ form.kkal.label }}<br>
+        {{ form.kkal() }}
+    </div>
+    <button type="submit">Добавить ингредиент</button>
+</form>
+
+<div>
+    <a href="{{ url_for('admin_menu', tab='dishes') }}">Завершить</a>
+</div>
+<a href="{{ url_for('admin_menu', tab='dishes') }}" 
+   class="btn btn-success mt-3">
+    Завершить и вернуться в меню
+</a>
+{% endblock %}

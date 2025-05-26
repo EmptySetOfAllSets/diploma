@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from extensions import db
 from models import Admin, Dish, Groc, Ingredient, Groc_type, Groc_unit, Dish_type
-from forms import ProductForm, DishForm, ProductTypeForm, UnitForm, DishTypeForm, IngredientForm
+from forms import ProductForm, DishForm, ProductTypeForm, UnitForm, DishTypeForm, IngredientForm, IngredientFormForDish
 
 
 
@@ -111,9 +111,9 @@ def init_routes(app):
             search_query=search_query
         )
     # Product Types
-    @app.route('/admin/add/type', methods=['GET', 'POST'])
+    @app.route('/admin/add/product_type', methods=['GET', 'POST'])
     @login_required
-    def add_type():
+    def add_product_type():
         form = ProductTypeForm()
         if form.validate_on_submit():
             product_type = Groc_type(type=form.type.data)
@@ -281,21 +281,21 @@ def init_routes(app):
         return redirect(url_for('admin_menu', tab='dishes'))
 
     # Dishes
-    @app.route('/admin/add/dish', methods=['GET', 'POST'])
-    @login_required
-    def add_dish():
-        form = DishForm()
-        if form.validate_on_submit():
-            dish = Dish(
-                name=form.name.data,
-                price=form.price.data,
-                dish_type_id=form.dish_type_id.data
-            )
-            db.session.add(dish)
-            db.session.commit()
-            flash('Блюдо успешно добавлено', 'success')
-            return redirect(url_for('admin_menu', tab='dishes'))
-        return render_template('admin/edit_form.html', form=form, title='Добавить блюдо')
+    # @app.route('/admin/add/dish', methods=['GET', 'POST'])
+    # @login_required
+    # def add_dish():
+    #     form = DishForm()
+    #     if form.validate_on_submit():
+    #         dish = Dish(
+    #             name=form.name.data,
+    #             price=form.price.data,
+    #             dish_type_id=form.dish_type_id.data
+    #         )
+    #         db.session.add(dish)
+    #         db.session.commit()
+    #         flash('Блюдо успешно добавлено', 'success')
+    #         return redirect(url_for('admin_menu', tab='dishes'))
+    #     return render_template('admin/edit_form.html', form=form, title='Добавить блюдо')
 
     @app.route('/admin/edit/dish/<int:id>', methods=['GET', 'POST'])
     @login_required
@@ -356,3 +356,52 @@ def init_routes(app):
         db.session.commit()
         flash('Ингредиент успешно удален', 'success')
         return redirect(url_for('admin_menu', tab='ingredients'))
+    
+
+    # Шаг 1: Создание блюда
+    @app.route('/admin/add/dish', methods=['GET', 'POST'])
+    @login_required
+    def add_dish():
+        form = DishForm()
+        if form.validate_on_submit():
+            dish = Dish(
+                name=form.name.data,
+                price=form.price.data,
+                dish_type_id=form.dish_type_id.data
+            )
+            db.session.add(dish)
+            db.session.commit()
+            return redirect(url_for('add_dish_ingredients', dish_id=dish.id))
+        return render_template('admin/add_dish.html', form=form)
+
+    # Шаг 2: Добавление ингредиентов
+    @app.route('/admin/dish/<int:dish_id>/ingredients', methods=['GET', 'POST'])
+    @login_required
+    def add_dish_ingredients(dish_id):
+        dish = Dish.query.get_or_404(dish_id)
+        form = IngredientFormForDish()
+        if request.method == 'GET' and 'search' in request.args:
+            form.search.data = request.args.get('search')
+            form._update_product_choices(form.search.data)
+
+        if form.validate_on_submit():
+            product = Groc.query.get(form.product.data)
+            
+            ingredient = Ingredient(
+                dish_id=dish.id,
+                groc_id=product.id,
+                amount=form.amount.data,
+                kkal=form.kkal.data,
+                description=f"{product.name} для {dish.name}"
+            )
+            
+            db.session.add(ingredient)
+            db.session.commit()
+            flash('Ингредиент добавлен!', 'success')
+            return redirect(url_for('add_dish_ingredients', dish_id=dish.id))
+        
+        return render_template('admin/add_ingredients.html', 
+                            dish=dish, 
+                            form=form,
+                            ingredients=dish.ingredients)
+    
