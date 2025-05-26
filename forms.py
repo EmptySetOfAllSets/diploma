@@ -1,0 +1,43 @@
+from flask_wtf import FlaskForm
+from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField
+from wtforms.validators import DataRequired, NumberRange
+from models import Groc_type, Groc_unit, Dish_type, Groc, Dish, Ingredient
+
+class ProductTypeForm(FlaskForm):
+    type = StringField('Тип продукта', validators=[DataRequired()])
+
+class UnitForm(FlaskForm):
+    unit = StringField('Единица измерения', validators=[DataRequired()])
+
+class ProductForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    type_id = SelectField('Тип продукта', coerce=int, validators=[DataRequired()])
+    unit_id = SelectField('Единица измерения', coerce=int, validators=[DataRequired()])
+    
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        self.type_id.choices = [(t.id, t.type) for t in Groc_type.query.order_by(Groc_type.type).all()]
+        self.unit_id.choices = [(u.id, u.unit) for u in Groc_unit.query.order_by(Groc_unit.unit).all()]
+
+class DishTypeForm(FlaskForm):
+    type = StringField('Тип блюда', validators=[DataRequired()])
+
+class DishForm(FlaskForm):
+    name = StringField('Название блюда', validators=[DataRequired()])
+    price = FloatField('Цена', validators=[DataRequired(), NumberRange(min=0)])
+    dish_type_id = SelectField('Тип блюда', coerce=int, validators=[DataRequired()])
+    
+    def __init__(self, *args, **kwargs):
+        super(DishForm, self).__init__(*args, **kwargs)
+        self.dish_type_id.choices = [(dt.id, dt.type) for dt in Dish_type.query.order_by(Dish_type.type).all()]
+
+class IngredientForm(FlaskForm):
+    dish_id = SelectField('Блюдо', coerce=int, validators=[DataRequired()])
+    groc_id = SelectField('Продукт', coerce=int, validators=[DataRequired()])
+    amount = IntegerField('Количество', validators=[DataRequired(), NumberRange(min=1)])
+    description = TextAreaField('Описание', validators=[DataRequired()])
+    
+    def __init__(self, *args, **kwargs):
+        super(IngredientForm, self).__init__(*args, **kwargs)
+        self.dish_id.choices = [(d.id, d.name) for d in Dish.query.order_by(Dish.name).all()]
+        self.groc_id.choices = [(g.id, f"{g.name} ({g.groc_type.type})") for g in Groc.query.join(Groc.groc_type).order_by(Groc.name).all()]
