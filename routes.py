@@ -200,12 +200,42 @@ def init_routes(app):
     def edit_product(id):
         product = Groc.query.get_or_404(id)
         form = ProductForm(obj=product)
+        
         if form.validate_on_submit():
-            form.populate_obj(product)
+            new_type_id = int(form.type_id.data)
+            new_unit_id = int(form.unit_id.data)
+            
+            print(f"Старые значения: type={product.groc_type_id}, unit={product.groc_unit_id}")
+            print(f"Новые значения: type={new_type_id}, unit={new_unit_id}")
+            
+            if new_type_id != product.groc_type_id:
+                product.groc_type_id = new_type_id
+                print(f"Значение type_id после присвоения: {product.groc_type_id}")
+                
+            if new_unit_id != product.groc_unit_id:
+                product.groc_unit_id = new_unit_id
+                
+            print(f"Состояние перед коммитом: {db.session.is_modified(product)}")
             db.session.commit()
-            flash('Продукт успешно обновлен', 'success')
+            
+            # Проверка после коммита
+            updated = Groc.query.get(id)
+            print(f"Фактическое значение в БД: type={updated.groc_type_id}, unit={updated.groc_unit_id}")
+            
+            flash('Продукт обновлен!', 'success')
             return redirect(url_for('admin_menu', tab='products'))
+        
+        return render_template('admin/edit_form.html', form=form, title='Редактировать продукт')    
+        
         return render_template('admin/edit_form.html', form=form, title='Редактировать продукт')
+        dish = Dish.query.get_or_404(id)
+        form = DishForm(obj=dish)
+        if form.validate_on_submit():
+            form.populate_obj(dish)
+            db.session.commit()
+            flash('Блюдо успешно обновлено', 'success')
+            return redirect(url_for('admin_menu', tab='dishes'))
+        return render_template('admin/edit_form.html', form=form, title='Редактировать блюдо')
 
     @app.route('/admin/delete/product/<int:id>')
     @login_required

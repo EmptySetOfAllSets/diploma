@@ -9,18 +9,6 @@ class ProductTypeForm(FlaskForm):
 class UnitForm(FlaskForm):
     unit = StringField('Единица измерения', validators=[DataRequired()])
 
-class ProductForm(FlaskForm):
-    name = StringField('Название', validators=[DataRequired()])
-    type_id = SelectField('Тип продукта', coerce=int, validators=[DataRequired()])
-    unit_id = SelectField('Единица измерения', coerce=int, validators=[DataRequired()])
-    
-    def __init__(self, *args, **kwargs):
-        super(ProductForm, self).__init__(*args, **kwargs)
-        self.type_id.choices = [(t.id, t.type) for t in Groc_type.query.order_by(Groc_type.type).all()]
-        self.unit_id.choices = [(u.id, u.unit) for u in Groc_unit.query.order_by(Groc_unit.unit).all()]
-
-class DishTypeForm(FlaskForm):
-    type = StringField('Тип блюда', validators=[DataRequired()])
 
 class DishForm(FlaskForm):
     name = StringField('Название блюда', validators=[DataRequired()])
@@ -30,6 +18,33 @@ class DishForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(DishForm, self).__init__(*args, **kwargs)
         self.dish_type_id.choices = [(dt.id, dt.type) for dt in Dish_type.query.order_by(Dish_type.type).all()]
+
+class ProductForm(FlaskForm):
+    name = StringField('Название', validators=[DataRequired()])
+    type_id = SelectField('Тип продукта', coerce=int, validators=[DataRequired()])
+    unit_id = SelectField('Единица измерения', coerce=int, validators=[DataRequired()])
+    
+    def __init__(self, *args, **kwargs):
+        super(ProductForm, self).__init__(*args, **kwargs)
+        
+        # Всегда обновляем choices при инициализации формы
+        self.type_id.choices = [
+            (t.id, t.type) for t in Groc_type.query.order_by(Groc_type.type).all()
+        ]
+        self.unit_id.choices = [
+            (u.id, u.unit) for u in Groc_unit.query.order_by(Groc_unit.unit).all()
+        ]
+        
+        # Явная установка данных для SelectField при редактировании
+        if hasattr(self, '_obj'):
+            obj = self._obj
+            self.type_id.data = obj.groc_type_id
+            self.unit_id.data = obj.groc_unit_id
+
+
+class DishTypeForm(FlaskForm):
+    type = StringField('Тип блюда', validators=[DataRequired()])
+
 
 class IngredientForm(FlaskForm):
     dish_id = SelectField('Блюдо', coerce=int, validators=[DataRequired()])
