@@ -52,10 +52,52 @@ class Dish(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300), nullable=False, index=True)
     price = db.Column(db.Float, nullable=False)
+    avaliable = db.Column(db.Boolean, nullable=False)
     ingredients = db.relationship('Ingredient', backref='dish', lazy=True)
+    positions = db.relationship('Position', backref='dish', lazy=True)
     dish_type_id = db.Column(db.Integer, db.ForeignKey('dish_type.id'), nullable=False)
 
 class Dish_type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False, unique=True)
     dishes = db.relationship('Dish', backref='dish_type', lazy=True)  # Исправлено groc на dishes
+
+class Position(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    # name = db.Column(db.String(300), nullable=False, index=True)
+    price = db.Column(db.Float, nullable=False)
+    # ingredients = db.relationship('Ingredient', backref='dish', lazy=True)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    dish_id = db.Column(db.Integer, db.ForeignKey('dish.id'), nullable=False)
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300), nullable=False, index=True)
+    price = db.Column(db.Float, nullable=False)
+    positions = db.relationship('Position', backref='order', lazy=True)
+    client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
+    delivery_id = db.Column(db.Integer, db.ForeignKey('delivery.id'), nullable=True)
+    order_status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), nullable=False)
+
+class Order_status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300), nullable=False, index=True)
+    orders = db.relationship('Order', backref='status', lazy=True)
+
+class Client(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300), nullable=False, index=True)
+    phone = db.Column(db.String(300), nullable=False, index=True)
+    orders = db.relationship('Order', backref='client', lazy=True)
+
+class Delivery (db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.String(300), nullable=False, index=True)
+    adress = db.Column(db.String(300), nullable=False, index=True)
+    orders = db.relationship('Order', backref='delivery', lazy=True)
+    delivery_status_id = db.Column(db.Integer, db.ForeignKey('delivery_status.id'), nullable=True)
+
+class Delivery_status(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(300), nullable=False, index=True)
+    deliveries = db.relationship('Delivery', backref='status', lazy=True)

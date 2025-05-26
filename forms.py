@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField
+from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField, BooleanField
 from wtforms.validators import DataRequired, NumberRange
 from models import Groc_type, Groc_unit, Dish_type, Groc, Dish, Ingredient
 
@@ -10,9 +10,19 @@ class UnitForm(FlaskForm):
     unit = StringField('Единица измерения', validators=[DataRequired()])
 
 
+# class DishForm(FlaskForm):
+#     name = StringField('Название блюда', validators=[DataRequired()])
+#     price = FloatField('Цена', validators=[DataRequired(), NumberRange(min=0)])
+#     dish_type_id = SelectField('Тип блюда', coerce=int, validators=[DataRequired()])
+    
+#     def __init__(self, *args, **kwargs):
+#         super(DishForm, self).__init__(*args, **kwargs)
+#         self.dish_type_id.choices = [(dt.id, dt.type) for dt in Dish_type.query.order_by(Dish_type.type).all()]
+
 class DishForm(FlaskForm):
     name = StringField('Название блюда', validators=[DataRequired()])
     price = FloatField('Цена', validators=[DataRequired(), NumberRange(min=0)])
+    avaliable = BooleanField('Актуально (отображать в меню)')
     dish_type_id = SelectField('Тип блюда', coerce=int, validators=[DataRequired()])
     
     def __init__(self, *args, **kwargs):

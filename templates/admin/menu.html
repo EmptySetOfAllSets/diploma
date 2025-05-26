@@ -42,6 +42,14 @@
     <!-- Содержимое вкладок -->
     {% if active_tab == 'dishes' %}
         <h2>Блюда</h2>
+        <div>
+            <label>
+                <input type="checkbox" id="show-all-admin" 
+                       {% if show_all %}checked{% endif %}
+                       onchange="updateUrlParam('show_all', this.checked)">
+                Показать неактуальные
+            </label>
+        </div>
         <table border="1">
             <thead>
                 <tr>
@@ -51,6 +59,7 @@
                     <th>Цена</th>
                     <th>Состав</th>
                     <th>Действия</th>
+                    <th>Статус</th>
                 </tr>
             </thead>
             <tbody>
@@ -74,11 +83,29 @@
                     <td>
                         <a href="{{ url_for('edit_dish', id=dish.id) }}">Редактировать</a> |
                         <a href="{{ url_for('delete_dish', id=dish.id) }}">Удалить</a>
+                            <a href="{{ url_for('toggle_dish_status', id=dish.id) }}"
+                               onclick="return confirm('Изменить статус блюда?')">
+                                {% if dish.avaliable %}Скрыть{% else %}Показать{% endif %}
+                            </a>
+                    </td>
+                    <td>
+                        {% if dish.avaliable %}
+                            <span class="text-success">Актуально</span>
+                        {% else %}
+                            <span class="text-danger">Неактуально</span>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <script>
+            function updateUrlParam(key, value) {
+                const url = new URL(window.location.href);
+                url.searchParams.set(key, value);
+                window.location.href = url.toString();
+            }
+            </script>
     <a href="{{ url_for('add_dish') }}">Добавить новое блюдо</a>
     
     {% elif active_tab == 'products' %}

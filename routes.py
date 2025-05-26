@@ -49,11 +49,18 @@ def init_routes(app):
     def admin_menu():
         active_tab = request.args.get('tab', 'dishes')
         search_query = request.args.get('search', '')
+        show_all = request.args.get('show_all', 'false').lower() == 'true'
         
         # Инициализация переменных для всех вкладок
         dishes = products = types = units = ingredients = None
         
         if active_tab == 'dishes':
+            
+            query = Dish.query
+            if not show_all:
+                query = query.filter_by(avaliable=True)
+            dishes = query.all()
+            print (f"!!{query}")
             query = Dish.query.join(Dish.dish_type)
             if search_query:
                 query = query.filter(
@@ -104,6 +111,7 @@ def init_routes(app):
             'admin/menu.html',
             active_tab=active_tab,
             dishes=dishes,
+            show_all=show_all,
             products=products,
             types=types,
             units=units,
@@ -367,7 +375,8 @@ def init_routes(app):
             dish = Dish(
                 name=form.name.data,
                 price=form.price.data,
-                dish_type_id=form.dish_type_id.data
+                dish_type_id=form.dish_type_id.data,
+                avaliable = True
             )
             db.session.add(dish)
             db.session.commit()
@@ -405,3 +414,11 @@ def init_routes(app):
                             form=form,
                             ingredients=dish.ingredients)
     
+    @app.route('/admin/dish/toggle/<int:id>')
+    @login_required
+    def toggle_dish_status(id):
+        dish = Dish.query.get_or_404(id)
+        dish.avaliable = not dish.avaliable
+        db.session.commit()
+        flash(f'Блюдо "{dish.name}" теперь {"актуально" if dish.avaliable else "неактуально"}', 'success')
+        return redirect(url_for('admin_menu', tab='dishes'))
