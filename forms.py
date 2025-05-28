@@ -1,7 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField, BooleanField
-from wtforms.validators import DataRequired, NumberRange
-from models import Groc_type, Groc_unit, Dish_type, Groc, Dish, Ingredient
+from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField, BooleanField, DateTimeField
+from wtforms.validators import DataRequired, NumberRange, Length, Regexp, Optional
+from models import Groc_type, Groc_unit, Dish_type, Groc, Dish, Ingredient, Client, Order, Order_status, Delivery, Delivery_status
+import re
+from datetime import datetime
 
 class ProductTypeForm(FlaskForm):
     type = StringField('Тип продукта', validators=[DataRequired()])
@@ -87,3 +89,63 @@ class IngredientFormForDish(FlaskForm):
         super(IngredientFormForDish, self).__init__(*args, **kwargs)
         self.product.choices = [(g.id, f"{g.name} ({g.groc_unit.unit})") 
                               for g in Groc.query.join(Groc.groc_unit).order_by(Groc.name).all()]
+    
+class ClientForm(FlaskForm):
+    name = StringField('Имя клиента', validators=[
+        DataRequired(),
+        Length(min=2, max=100, message='Имя должно быть от 2 до 100 символов')
+    ])
+    phone = StringField('Телефон', validators=[
+        DataRequired(),
+        Length(min=5, max=20, message='Некорректный формат телефона'),
+        Regexp(r'^[\d\+\(\)\-\s]+$', message='Только цифры и символы +()-')
+    ])
+
+class OrderStatusForm(FlaskForm):
+    name = StringField('Тип продукта', validators=[DataRequired()])
+
+class DeliveryStatusForm(FlaskForm):
+    name = StringField('Тип продукта', validators=[DataRequired()])
+
+class OrderForm(FlaskForm):
+    name = StringField('Название заказа', validators=[
+        DataRequired(),
+        Length(min=2, max=300)
+    ])
+    price = FloatField('Сумма', validators=[
+        DataRequired(),
+        NumberRange(min=0)
+    ])
+    created_at = DateTimeField('Дата и время создания', 
+                             format='%Y-%m-%d %H:%M',
+                             default=datetime.utcnow)
+    delivery_time = DateTimeField('Планируемое время доставки',
+                                format='%Y-%m-%d %H:%M',
+                                validators=[Optional()])
+    client_id = SelectField('Клиент', coerce=int, validators=[DataRequired()])
+    delivery_id = SelectField('Доставка', coerce=int)
+    order_status_id = SelectField('Статус заказа', coerce=int, validators=[DataRequired()])
+    
+    def __init__(self, *args, **kwargs):
+        super(OrderForm, self).__init__(*args, **kwargs)
+        self.client_id.choices = [(c.id, f"{c.name} ({c.phone})") for c in Client.query.all()]
+        self.delivery_id.choices = [(d.id, d.description) for d in Delivery.query.all()]
+        self.order_status_id.choices = [(s.id, s.name) for s in Order_status.query.all()]
+
+class PositionForm(FlaskForm):
+    dish_id = SelectField('Блюдо', coerce=int, validators=[DataRequired()])
+    price = FloatField('Цена', validators=[
+        DataRequired(),
+        NumberRange(min=0)
+    ])
+
+class DeliveryForm(FlaskForm):
+    description = StringField('Описание', validators=[DataRequired()])
+    adress = StringField('Адрес', validators=[DataRequired()])
+    delivery_status_id = SelectField('Статус доставки', coerce=int)
+
+class OrderStatusForm(FlaskForm):
+    name = StringField('Название статуса', validators=[DataRequired()])
+
+class DeliveryStatusForm(FlaskForm):
+    name = StringField('Название статуса', validators=[DataRequired()])

@@ -46,7 +46,7 @@ class Ingredient(db.Model):  # Исправлено название с Ingridie
     kkal = db.Column(db.Float, nullable=False)  # Изменено на Float
     description = db.Column(db.String(150))
     groc_id = db.Column(db.Integer, db.ForeignKey('groc.id'), nullable=False)  # Исправлено gorc_id на groc_id
-    dish_id = db.Column(db.Integer, db.ForeignKey('dish.id'), nullable=False)
+    dish_id = db.Column(db.Integer, db.ForeignKey('dish.id'), nullable=True)
 
 class Dish(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -56,6 +56,7 @@ class Dish(db.Model):
     ingredients = db.relationship('Ingredient', backref='dish', lazy=True)
     positions = db.relationship('Position', backref='dish', lazy=True)
     dish_type_id = db.Column(db.Integer, db.ForeignKey('dish_type.id'), nullable=False)
+    cascade='save-update, merge, delete'
 
 class Dish_type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,15 +70,23 @@ class Position(db.Model):
     # ingredients = db.relationship('Ingredient', backref='dish', lazy=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     dish_id = db.Column(db.Integer, db.ForeignKey('dish.id'), nullable=False)
+    cascade='save-update, merge, delete'
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300), nullable=False, index=True)
     price = db.Column(db.Float, nullable=False)
-    positions = db.relationship('Position', backref='order', lazy=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)  # Дата и время создания
+    delivery_time = db.Column(db.DateTime, nullable=True)  # Планируемое время доставки
+    
     client_id = db.Column(db.Integer, db.ForeignKey('client.id'), nullable=False)
     delivery_id = db.Column(db.Integer, db.ForeignKey('delivery.id'), nullable=True)
     order_status_id = db.Column(db.Integer, db.ForeignKey('order_status.id'), nullable=False)
+    
+    positions = db.relationship('Position', 
+                              backref='order', 
+                              cascade='all, delete-orphan',
+                              lazy='dynamic')
 
 class Order_status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,6 +98,9 @@ class Client(db.Model):
     name = db.Column(db.String(300), nullable=False, index=True)
     phone = db.Column(db.String(300), nullable=False, index=True)
     orders = db.relationship('Order', backref='client', lazy=True)
+    
+    def can_be_deleted(self):
+        return len(self.orders) == 0
 
 class Delivery (db.Model):
     id = db.Column(db.Integer, primary_key=True)

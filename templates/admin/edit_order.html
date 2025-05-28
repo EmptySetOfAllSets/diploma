@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ title }}</h2>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.name.label }}
+                {{ form.name(class="form-control") }}
+                {% for error in form.name.errors %}
+                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-md-6">
+                {{ form.price.label }}
+                {{ form.price(class="form-control") }}
+                {% for error in form.price.errors %}
+                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                {{ form.created_at.label }}
+                {{ form.created_at(class="form-control datetimepicker") }}
+                {% for error in form.created_at.errors %}
+                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                {% endfor %}
+            </div>
+            
+            <div class="col-md-6">
+                {{ form.delivery_time.label }}
+                {{ form.delivery_time(class="form-control datetimepicker") }}
+                {% for error in form.delivery_time.errors %}
+                    <div class="invalid-feedback" style="display: block;">{{ error }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-4">
+                {{ form.client_id.label }}
+                {{ form.client_id(class="form-control") }}
+            </div>
+            
+            <div class="col-md-4">
+                {{ form.delivery_id.label }}
+                {{ form.delivery_id(class="form-control") }}
+            </div>
+            
+            <div class="col-md-4">
+                {{ form.order_status_id.label }}
+                {{ form.order_status_id(class="form-control") }}
+            </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="{{ url_for('admin_clients_orders', tab='orders') }}" class="btn btn-secondary">Отмена</a>
+        
+        {% if order %}
+        <div class="mt-4">
+            <h5>Позиции заказа:</h5>
+            <!-- Остальной код таблицы позиций -->
+        </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Добавим datetime picker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".datetimepicker", {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i",
+            time_24hr: true,
+            locale: "ru"
+        });
+    });
+</script>
+{% endblock %}

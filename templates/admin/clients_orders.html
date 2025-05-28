@@ -1,0 +1,225 @@
+
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Управление клиентами и заказами</h2>
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <form method="GET" action="{{ url_for('admin_clients_orders') }}">
+                <input type="hidden" name="tab" value="{{ active_tab }}">
+                <div class="input-group">
+                    <input type="text" class="form-control" 
+                           name="search" 
+                           placeholder="Поиск по {{ active_tab }}..." 
+                           value="{{ request.args.get('search', '') }}">
+                    <button class="btn btn-outline-secondary" type="submit">Поиск</button>
+                    {% if request.args.get('search') %}
+                    <a href="{{ url_for('admin_clients_orders', tab=active_tab) }}" 
+                       class="btn btn-outline-danger">Сброс</a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if active_tab == 'orders' %}
+            <a href="{{ url_for('archive_orders') }}" class="btn btn-outline-secondary">
+                Архив заказов
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    <!-- Вкладки -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'clients' %}active{% endif %}" 
+               href="{{ url_for('admin_clients_orders', tab='clients') }}">Клиенты</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'orders' %}active{% endif %}" 
+               href="{{ url_for('admin_clients_orders', tab='orders') }}">Заказы</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'deliveries' %}active{% endif %}" 
+               href="{{ url_for('admin_clients_orders', tab='deliveries') }}">Доставки</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'statuses' %}active{% endif %}" 
+               href="{{ url_for('admin_clients_orders', tab='statuses') }}">Статусы</a>
+        </li>
+    </ul>
+
+    <!-- Контент вкладок -->
+    {% if active_tab == 'clients' %}
+        <!-- Таблица клиентов -->
+        <div class="mb-3">
+            <a href="{{ url_for('add_client') }}" class="btn btn-primary">Добавить клиента</a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Телефон</th>
+                    <th>Кол-во заказов</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td>{{ client.id }}</td>
+                    <td>{{ client.name }}</td>
+                    <td>{{ client.phone }}</td>
+                    <td>{{ client.orders|length }}</td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="{{ url_for('edit_client', id=client.id) }}" 
+                               class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <form action="{{ url_for('delete_client', id=client.id) }}" 
+                                  method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Удалить клиента?')">
+                                    Удалить
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% elif active_tab == 'orders' %}
+        <!-- Таблица заказов -->
+        <div class="mb-3">
+            <a href="{{ url_for('add_order') }}" class="btn btn-primary">Добавить заказ</a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Название</th>
+                    <th>Клиент</th>
+                    <th>Сумма</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.name }}</td>
+                    <td>{{ order.client.name }}</td>
+                    <td>{{ order.price }} руб.</td>
+                    <td>{{ order.status.name }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_order', id=order.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
+                        <form action="{{ url_for('delete_order', id=order.id) }}" 
+                                  method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Удалить клиентаorder.id?')">
+                                    Удалить
+                                </button>
+                            </form>
+                        
+                        <a href="{{ url_for('delete_order', id=order.id) }}" class="btn btn-sm btn-outline-danger" 
+                           onclick="return confirm('Удалить заказ?')">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% elif active_tab == 'deliveries' %}
+        <!-- Таблица доставок -->
+        <div class="mb-3">
+            <a href="{{ url_for('add_delivery') }}" class="btn btn-primary">Добавить доставку</a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Описание</th>
+                    <th>Адрес</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for delivery in deliveries %}
+                <tr>
+                    <td>{{ delivery.id }}</td>
+                    <td>{{ delivery.description }}</td>
+                    <td>{{ delivery.adress }}</td>
+                    <td>{{ delivery.status.name if delivery.status else 'Нет статуса' }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_delivery', id=delivery.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
+                        <a href="{{ url_for('delete_delivery', id=delivery.id) }}" class="btn btn-sm btn-outline-danger" 
+                           onclick="return confirm('Удалить доставку?')">🗑️</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% elif active_tab == 'statuses' %}
+        <!-- Таблица статусов -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h4>Статусы заказов</h4>
+                <a href="{{ url_for('add_order_status') }}" class="btn btn-primary btn-sm mb-2">Добавить статус</a>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in order_statuses %}
+                        <tr>
+                            <td>{{ status.id }}</td>
+                            <td>{{ status.name }}</td>
+                            <td>
+                                <a href="{{ url_for('edit_order_status', id=status.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
+                                <a href="{{ url_for('delete_order_status', id=status.id) }}" class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Удалить статус?')">🗑️</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Статусы доставок</h4>
+                <a href="{{ url_for('add_delivery_status') }}" class="btn btn-primary btn-sm mb-2">Добавить статус</a>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Название</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in delivery_statuses %}
+                        <tr>
+                            <td>{{ status.id }}</td>
+                            <td>{{ status.name }}</td>
+                            <td>
+                                <a href="{{ url_for('edit_delivery_status', id=status.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
+                                <a href="{{ url_for('delete_delivery_status', id=status.id) }}" class="btn btn-sm btn-outline-danger" 
+                                   onclick="return confirm('Удалить статус?')">🗑️</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

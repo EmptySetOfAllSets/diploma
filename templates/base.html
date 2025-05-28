@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <style>
+        .search-highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+    </style>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
@@ -21,5 +28,29 @@
         {% block content %}{% endblock %}
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Глобальная обработка подтверждений для форм
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('form[onsubmit*="confirm"]').forEach(form => {
+                form.onsubmit = function() {
+                    return confirm(this.getAttribute('data-confirm') || 'Вы уверены?');
+                };
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Подсветка результатов поиска
+            const searchQuery = "{{ search_query|safe }}";
+            if (searchQuery) {
+                document.querySelectorAll('td').forEach(td => {
+                    const text = td.textContent;
+                    const regex = new RegExp(searchQuery, 'gi');
+                    td.innerHTML = text.replace(regex, match => 
+                        `<span class="search-highlight">${match}</span>`);
+                });
+            }
+        });
+        </script>
 </body>
 </html>

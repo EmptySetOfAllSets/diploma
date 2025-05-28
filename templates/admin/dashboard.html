@@ -8,6 +8,9 @@
         <h5 class="card-title">Welcome, {{ current_user.username }}!</h5>
         <p class="card-text">This is your admin panel. You can manage the system from here.</p>
         <a href="{{ url_for('admin_menu') }}" class="btn btn-primary">Управление меню</a>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('admin_clients_orders') }}">Клиенты и заказы</a>
+        </li>
         <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">Logout</a>
     </div>
 </div>

@@ -2,8 +2,11 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from extensions import db
-from models import Admin, Dish, Groc, Ingredient, Groc_type, Groc_unit, Dish_type
-from forms import ProductForm, DishForm, ProductTypeForm, UnitForm, DishTypeForm, IngredientForm, IngredientFormForDish
+from models import Admin, Dish, Groc, Ingredient, Groc_type, Groc_unit, Dish_type, Client, Order_status, Order, Delivery, Delivery_status, Position
+from forms import (ProductForm, DishForm, ProductTypeForm, UnitForm, DishTypeForm, 
+                   IngredientForm, IngredientFormForDish, ClientForm, PositionForm, OrderForm,
+                   DeliveryForm, DeliveryStatusForm, OrderStatusForm,)
+from datetime import datetime, timedelta
 
 
 
@@ -146,10 +149,15 @@ def init_routes(app):
     @app.route('/admin/delete/type/<int:id>')
     @login_required
     def delete_type(id):
-        product_type = Groc_type.query.get_or_404(id)
-        db.session.delete(product_type)
-        db.session.commit()
-        flash('Тип продукта успешно удален', 'success')
+        try:
+            product_type = Groc_type.query.get_or_404(id)
+            db.session.delete(product_type)
+            db.session.commit()
+            flash('Тип продукта успешно удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='types'))
 
     # Units
@@ -180,10 +188,15 @@ def init_routes(app):
     @app.route('/admin/delete/unit/<int:id>')
     @login_required
     def delete_unit(id):
-        unit = Groc_unit.query.get_or_404(id)
-        db.session.delete(unit)
-        db.session.commit()
-        flash('Единица измерения успешно удалена', 'success')
+        try:
+            unit = Groc_unit.query.get_or_404(id)
+            db.session.delete(unit)
+            db.session.commit()
+            flash('Единица измерения успешно удалена', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='units'))
 
     # Products (Groc)
@@ -248,10 +261,15 @@ def init_routes(app):
     @app.route('/admin/delete/product/<int:id>')
     @login_required
     def delete_product(id):
-        product = Groc.query.get_or_404(id)
-        db.session.delete(product)
-        db.session.commit()
-        flash('Продукт успешно удален', 'success')
+        try:
+            product = Groc.query.get_or_404(id)
+            db.session.delete(product)
+            db.session.commit()
+            flash('Продукт успешно удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='products'))
 
     # Dish Types
@@ -282,10 +300,15 @@ def init_routes(app):
     @app.route('/admin/delete/dishtype/<int:id>')
     @login_required
     def delete_dishtype(id):
-        dish_type = Dish_type.query.get_or_404(id)
-        db.session.delete(dish_type)
-        db.session.commit()
-        flash('Тип блюда успешно удален', 'success')
+        try:
+            dish_type = Dish_type.query.get_or_404(id)
+            db.session.delete(dish_type)
+            db.session.commit()
+            flash('Тип блюда успешно удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='dishes'))
 
     # Dishes
@@ -320,10 +343,15 @@ def init_routes(app):
     @app.route('/admin/delete/dish/<int:id>')
     @login_required
     def delete_dish(id):
-        dish = Dish.query.get_or_404(id)
-        db.session.delete(dish)
-        db.session.commit()
-        flash('Блюдо успешно удалено', 'success')
+        try:
+            dish = Dish.query.get_or_404(id)
+            db.session.delete(dish)
+            db.session.commit()
+            flash('Блюдо успешно удалено', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='dishes'))
 
     # Ingredients
@@ -359,10 +387,15 @@ def init_routes(app):
     @app.route('/admin/delete/ingredient/<int:id>')
     @login_required
     def delete_ingredient(id):
-        ingredient = Ingredient.query.get_or_404(id)
-        db.session.delete(ingredient)
-        db.session.commit()
-        flash('Ингредиент успешно удален', 'success')
+        try:
+            ingredient = Ingredient.query.get_or_404(id)
+            db.session.delete(ingredient)
+            db.session.commit()
+            flash('Ингредиент успешно удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
         return redirect(url_for('admin_menu', tab='ingredients'))
     
 
@@ -422,3 +455,412 @@ def init_routes(app):
         db.session.commit()
         flash(f'Блюдо "{dish.name}" теперь {"актуально" if dish.avaliable else "неактуально"}', 'success')
         return redirect(url_for('admin_menu', tab='dishes'))
+
+    @app.route('/admin/clients-orders')
+    @login_required
+    def admin_clients_orders():
+        active_tab = request.args.get('tab', 'clients')
+        search_query = request.args.get('search', '').strip()
+        
+        today = datetime.utcnow().date()
+        
+        # Базовые запросы
+        clients_query = Client.query
+        orders_query = Order.query.filter(
+            db.func.date(Order.created_at) == today
+        )
+        deliveries_query = Delivery.query
+        order_statuses_query = Order_status.query
+        delivery_statuses_query = Delivery_status.query
+        
+        # Применяем поиск если есть запрос
+        if search_query:
+            if active_tab == 'clients':
+                clients_query = clients_query.filter(
+                    db.or_(
+                        Client.name.ilike(f'%{search_query}%'),
+                        Client.phone.ilike(f'%{search_query}%')
+                    )
+                )
+            elif active_tab == 'orders':
+                orders_query = orders_query.join(Order.client).filter(
+                    db.or_(
+                        Order.name.ilike(f'%{search_query}%'),
+                        Client.name.ilike(f'%{search_query}%'),
+                        Client.phone.ilike(f'%{search_query}%')
+                    )
+                )
+            elif active_tab == 'deliveries':
+                deliveries_query = deliveries_query.filter(
+                    db.or_(
+                        Delivery.description.ilike(f'%{search_query}%'),
+                        Delivery.adress.ilike(f'%{search_query}%')
+                    )
+                )
+            elif active_tab == 'statuses':
+                order_statuses_query = order_statuses_query.filter(
+                    Order_status.name.ilike(f'%{search_query}%')
+                )
+                delivery_statuses_query = delivery_statuses_query.filter(
+                    Delivery_status.name.ilike(f'%{search_query}%')
+                )
+        
+        return render_template('admin/clients_orders.html',
+                            active_tab=active_tab,
+                            clients=clients_query.all(),
+                            orders=orders_query.all(),
+                            deliveries=deliveries_query.all(),
+                            order_statuses=order_statuses_query.all(),
+                            delivery_statuses=delivery_statuses_query.all())
+
+    @app.route('/admin/archive/orders')
+    @login_required
+    def archive_orders():
+        search_query = request.args.get('search', '').strip()
+        today = datetime.utcnow().date()
+        
+        orders_query = Order.query.filter(
+            db.func.date(Order.created_at) != today
+        ).order_by(Order.created_at.desc())
+        
+        if search_query:
+            orders_query = orders_query.join(Order.client).filter(
+                db.or_(
+                    Order.name.ilike(f'%{search_query}%'),
+                    Client.name.ilike(f'%{search_query}%'),
+                    Client.phone.ilike(f'%{search_query}%')
+                )
+            )
+        
+        return render_template('admin/archive_orders.html',
+                            orders=orders_query.all(),
+                            search_query=search_query)
+    
+    @app.route('/admin/clients/add', methods=['GET', 'POST'])
+    @login_required
+    def add_client():
+        form = ClientForm()
+        
+        if form.validate_on_submit():
+            client = Client(
+                name=form.name.data,
+                phone=form.phone.data
+            )
+            db.session.add(client)
+            db.session.commit()
+            flash('Клиент успешно добавлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='clients'))
+        
+        return render_template('admin/edit_client.html', 
+                            form=form,
+                            title='Добавить клиента')
+
+    @app.route('/admin/clients/edit/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def edit_client(id):
+        client = Client.query.get_or_404(id)
+        form = ClientForm(obj=client)
+        
+        if form.validate_on_submit():
+            form.populate_obj(client)
+            db.session.commit()
+            flash('Данные клиента обновлены', 'success')
+            return redirect(url_for('admin_clients_orders', tab='clients'))
+        
+        return render_template('admin/edit_client.html',
+                            form=form,
+                            title='Редактировать клиента',
+                            client=client)
+
+    @app.route('/admin/clients/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_client(id):
+        client = Client.query.get_or_404(id)
+        print("@")
+        if not client.can_be_deleted():
+            flash('Нельзя удалить клиента с существующими заказами', 'danger')
+            print("@@")
+        else:
+            try:
+                db.session.delete(client)
+                db.session.commit()
+                print("@@@")
+                flash('Клиент успешно удален', 'success')
+            except Exception as e:
+                db.session.rollback()
+                print(f"!!!{str(e)}")
+                flash(f'Ошибка при удалении: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_clients_orders', tab='clients'))
+    @app.route('/admin/orders/add', methods=['GET', 'POST'])
+    @login_required
+    def add_order():
+        form = OrderForm()
+        
+        if form.validate_on_submit():
+            order = Order(
+                name=form.name.data,
+                price=form.price.data,
+                created_at=form.created_at.data,
+                delivery_time=form.delivery_time.data,
+                client_id=form.client_id.data,
+                delivery_id=form.delivery_id.data or None,
+                order_status_id=form.order_status_id.data
+            )
+            db.session.add(order)
+            db.session.commit()
+            flash('Заказ успешно создан', 'success')
+            return redirect(url_for('admin_clients_orders', tab='orders'))
+        
+        return render_template('admin/edit_order.html', 
+                            form=form,
+                            title='Создать заказ')
+
+    @app.route('/admin/orders/edit/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def edit_order(id):
+        order = Order.query.get_or_404(id)
+        form = OrderForm(obj=order)
+        
+        if form.validate_on_submit():
+            form.populate_obj(order)
+            db.session.commit()
+            flash('Заказ обновлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='orders'))
+        
+        return render_template('admin/edit_order.html',
+                            form=form,
+                            title='Редактировать заказ',
+                            order=order)
+    
+    @app.route('/admin/orders/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_order(id):
+        order = Order.query.get_or_404(id)
+        
+        try:
+            # Удаляем связанные позиции
+            Position.query.filter_by(order_id=id).delete()
+            db.session.delete(order)
+            db.session.commit()
+            print(order)
+            flash('Заказ удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            print("!!!")
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_clients_orders', tab='orders'))    
+
+    @app.route('/admin/positions/add/<int:order_id>', methods=['GET', 'POST'])
+    @login_required
+    def add_position(order_id):
+        order = Order.query.get_or_404(order_id)
+        form = PositionForm()
+        form.dish_id.choices = [(d.id, f"{d.name} ({d.price} руб.)") for d in Dish.query.filter_by(avaliable=True)]
+        
+        if form.validate_on_submit():
+            position = Position(
+                order_id=order_id,
+                dish_id=form.dish_id.data,
+                price=form.price.data
+            )
+            db.session.add(position)
+            
+            # Обновляем общую сумму заказа
+            order.price = sum(p.price for p in order.positions) 
+            db.session.commit()
+            
+            flash('Позиция добавлена', 'success')
+            return redirect(url_for('edit_order', id=order_id))
+        
+        return render_template('admin/edit_position.html',
+                            form=form,
+                            title='Добавить позицию',
+                            order=order)
+
+    @app.route('/admin/positions/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_position(id):
+        print ("test")
+        try:
+            print("init")
+            position = Position.query.get_or_404(id)
+            
+            order_id = position.order_id
+            order = Order.query.get(order_id)
+            print (position,order)
+            # Удаляем конкретную позицию
+            db.session.delete(position)
+            db.session.commit()  # Фиксируем удаление сразу
+
+            # Перезагружаем заказ из БД для актуальных данных
+            order = Order.query.get(order_id)
+            
+            if not order:  # Если заказ автоматически удалился
+                flash('Заказ удалён', 'info')
+                return redirect(url_for('admin_clients_orders', tab='orders'))
+                
+            # Обновляем сумму заказа
+            order.price = sum(p.price for p in order.positions)
+            db.session.commit()
+
+            flash('Позиция удалена', 'success')
+            return redirect(url_for('edit_order', id=order_id))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка: {str(e)}', 'danger')
+            return redirect(url_for('edit_order', id=order_id))
+    # Доставки
+    @app.route('/admin/deliveries/add', methods=['GET', 'POST'])
+    @login_required
+    def add_delivery():
+        form = DeliveryForm()
+        form.delivery_status_id.choices = [(s.id, s.name) for s in Delivery_status.query.all()]
+        
+        if form.validate_on_submit():
+            delivery = Delivery(
+                description=form.description.data,
+                adress=form.adress.data,
+                delivery_status_id=form.delivery_status_id.data
+            )
+            db.session.add(delivery)
+            db.session.commit()
+            flash('Доставка успешно добавлена', 'success')
+            return redirect(url_for('admin_clients_orders', tab='deliveries'))
+        
+        return render_template('admin/edit_delivery.html', 
+                            form=form,
+                            title='Добавить доставку')
+
+    @app.route('/admin/deliveries/edit/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def edit_delivery(id):
+        delivery = Delivery.query.get_or_404(id)
+        form = DeliveryForm(obj=delivery)
+        form.delivery_status_id.choices = [(s.id, s.name) for s in Delivery_status.query.all()]
+        
+        if form.validate_on_submit():
+            form.populate_obj(delivery)
+            db.session.commit()
+            flash('Доставка обновлена', 'success')
+            return redirect(url_for('admin_clients_orders', tab='deliveries'))
+        
+        return render_template('admin/edit_delivery.html',
+                            form=form,
+                            title='Редактировать доставку',
+                            delivery=delivery)
+
+    @app.route('/admin/deliveries/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_delivery(id):
+        delivery = Delivery.query.get_or_404(id)
+        
+        try:
+            db.session.delete(delivery)
+            db.session.commit()
+            flash('Доставка удалена', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_clients_orders', tab='deliveries'))
+
+    # Статусы заказов
+    @app.route('/admin/order_statuses/add', methods=['GET', 'POST'])
+    @login_required
+    def add_order_status():
+        form = OrderStatusForm()
+        
+        if form.validate_on_submit():
+            status = Order_status(name=form.name.data)
+            db.session.add(status)
+            db.session.commit()
+            flash('Статус заказа добавлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='statuses'))
+        
+        return render_template('admin/edit_status.html', 
+                            form=form,
+                            title='Добавить статус заказа')
+
+    @app.route('/admin/order_statuses/edit/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def edit_order_status(id):
+        status = Order_status.query.get_or_404(id)
+        form = OrderStatusForm(obj=status)
+        
+        if form.validate_on_submit():
+            form.populate_obj(status)
+            db.session.commit()
+            flash('Статус заказа обновлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='statuses'))
+        
+        return render_template('admin/edit_status.html',
+                            form=form,
+                            title='Редактировать статус заказа',
+                            status=status)
+
+    @app.route('/admin/order_statuses/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_order_status(id):
+        status = Order_status.query.get_or_404(id)
+        
+        try:
+            db.session.delete(status)
+            db.session.commit()
+            flash('Статус заказа удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_clients_orders', tab='statuses'))
+
+    # Статусы доставок
+    @app.route('/admin/delivery_statuses/add', methods=['GET', 'POST'])
+    @login_required
+    def add_delivery_status():
+        form = DeliveryStatusForm()
+        
+        if form.validate_on_submit():
+            status = Delivery_status(name=form.name.data)
+            db.session.add(status)
+            db.session.commit()
+            flash('Статус доставки добавлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='statuses'))
+        
+        return render_template('admin/edit_status.html', 
+                            form=form,
+                            title='Добавить статус доставки')
+
+    @app.route('/admin/delivery_statuses/edit/<int:id>', methods=['GET', 'POST'])
+    @login_required
+    def edit_delivery_status(id):
+        status = Delivery_status.query.get_or_404(id)
+        form = DeliveryStatusForm(obj=status)
+        
+        if form.validate_on_submit():
+            form.populate_obj(status)
+            db.session.commit()
+            flash('Статус доставки обновлен', 'success')
+            return redirect(url_for('admin_clients_orders', tab='statuses'))
+        
+        return render_template('admin/edit_status.html',
+                            form=form,
+                            title='Редактировать статус доставки',
+                            status=status)
+
+    @app.route('/admin/delivery_statuses/delete/<int:id>', methods=['POST'])
+    @login_required
+    def delete_delivery_status(id):
+        status = Delivery_status.query.get_or_404(id)
+        
+        try:
+            db.session.delete(status)
+            db.session.commit()
+            flash('Статус доставки удален', 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Ошибка при удалении: {str(e)}', 'danger')
+        
+        return redirect(url_for('admin_clients_orders', tab='statuses'))
