@@ -1,27 +1,54 @@
-
+{% extends "base.html" %}
 
 {% block content %}
 <div class="container">
-    <h2>{{ title }} для заказа #{{ order.id }}</h2>
+    <h2>{{ title }}</h2>
     
     <form method="POST">
         {{ form.hidden_tag() }}
         
-        <div class="form-group">
+        <div class="mb-3">
             {{ form.dish_id.label }}
             {{ form.dish_id(class="form-control") }}
         </div>
         
-        <div class="form-group">
+        <div class="mb-3">
+            {{ form.amount.label }}
+            {{ form.amount(class="form-control") }}
+        </div>
+        
+        <div class="mb-3">
             {{ form.price.label }}
-            {{ form.price(class="form-control") }}
-            {% for error in form.price.errors %}
-                <div class="invalid-feedback" style="display: block;">{{ error }}</div>
-            {% endfor %}
+            {{ form.price(class="form-control", readonly=True) }}
         </div>
         
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{{ url_for('edit_order', id=order.id) }}" class="btn btn-secondary">Отмена</a>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dishSelect = document.querySelector('#dish_id');
+    const priceInput = document.querySelector('#price');
+    const amountInput = document.querySelector('#amount');
+    
+    dishSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const price = selectedOption.text.match(/\((\d+\.?\d*) руб.\)/)[1];
+        updatePrice(price, amountInput.value);
+    });
+    
+    amountInput.addEventListener('input', function() {
+        const selectedOption = dishSelect.options[dishSelect.selectedIndex];
+        const price = selectedOption.text.match(/\((\d+\.?\d*) руб.\)/)[1];
+        updatePrice(price, this.value);
+    });
+    
+    function updatePrice(price, amount) {
+        const total = (parseFloat(price) * parseInt(amount || 1)).toFixed(2);
+        priceInput.value = total;
+    }
+});
+</script>
 {% endblock %}

@@ -1,26 +1,22 @@
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="container my-5">
-    <h2>Регистрация</h2>
+<div class="container registration-form animated">
+    <h2 class="mb-4 text-center">Регистрация</h2>
     <form method="POST">
         {{ form.hidden_tag() }}
         
-        <div class="mb-3">
-            {{ form.name.label }}
-            {{ form.name(class="form-control") }}
+        <div class="mb-4">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control", placeholder="Ваше полное имя") }}
         </div>
         
-        <div class="mb-3">
-            {{ form.phone.label }}
-            {{ form.phone(class="form-control") }}
+        <div class="mb-4">
+            {{ form.phone.label(class="form-label") }}
+            {{ form.phone(class="form-control", placeholder="+375 (XX) XXX-XX-XX") }}
         </div>
         
-
-        
-
-        
-        <button type="submit" class="btn btn-primary">Продолжить оформление</button>
+        <button type="submit" class="btn btn-primary w-100 py-3 mt-3">Продолжить оформление</button>
     </form>
 </div>
 {% endblock %}

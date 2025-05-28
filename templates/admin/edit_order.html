@@ -35,6 +35,7 @@
             </div>
             
             <div class="col-md-6">
+            
                 {{ form.delivery_time.label }}
                 {{ form.delivery_time(class="form-control datetimepicker") }}
                 {% for error in form.delivery_time.errors %}
@@ -70,12 +71,20 @@
                 {% for position in order.positions %}
                 <tr>
                     <td>{{ position.dish.name }}</td>
+                    <td>
+                        <form method="POST" action="{{ url_for('update_position_amount', position_id=position.id) }}" class="d-inline">
+                            <div class="input-group input-group-sm" style="width: 120px;">
+                                <input type="number" name="amount" value="{{ position.amount }}" min="1" 
+                                       class="form-control form-control-sm">
+                                <button type="submit" class="btn btn-outline-primary btn-sm">✓</button>
+                            </div>
+                        </form>
+                    </td>
                     <td>{{ position.price }} руб.</td>
                     <td>
                         <form action="{{ url_for('delete_position', id=position.id) }}" 
-                              method="POST" 
+                              method="POST" class="d-inline"
                               onsubmit="return confirm('Удалить позицию {{ position.dish.name }}?')">
-                            
                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                 Удалить
                             </button>

@@ -1,9 +1,13 @@
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="hero-section text-center py-5">
-    <h1 class="display-4">Добро пожаловать в "Бытро и вкусно"</h1>
-    <p class="lead">Мы готовим с любовью, доставляем с заботой</p>
-    <a href="{{ url_for('create_order') }}" class="btn btn-primary btn-lg mt-3">Оформить заказ</a>
+<div class="hero-section text-center py-5 animated">
+    <div class="container">
+        <h1 class="display-4 mb-4">Добро пожаловать в <span class="text-primary">"Быстро и вкусно"</span></h1>
+        <p class="lead mb-5">Мы готовим с любовью, доставляем с заботой</p>
+        <a href="{{ url_for('create_order') }}" class="btn btn-primary btn-lg px-5 py-3">
+            Оформить заказ <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
 </div>
 {% endblock %}

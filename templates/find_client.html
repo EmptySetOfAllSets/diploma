@@ -1,8 +1,8 @@
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="container my-5">
-    <h2>Найдите себя в нашей базе</h2>
+<div class="container search-container animated">
+    <h2 class="mb-4">Найдите себя в нашей базе</h2>
     
     <form method="GET" class="mb-4">
         <div class="input-group">
@@ -10,29 +10,29 @@
                    name="search" 
                    placeholder="Введите имя или телефон..." 
                    value="{{ request.args.get('search', '') }}">
-            <button class="btn btn-outline-secondary" type="submit">Поиск</button>
+            <button class="btn btn-primary" type="submit">Поиск</button>
         </div>
     </form>
     
     {% if clients %}
-    <div class="list-group">
+    <div class="mt-4">
         {% for client in clients %}
         <a href="{{ url_for('select_client', client_id=client.id) }}" 
-           class="list-group-item list-group-item-action">
+           class="list-group-item client-card d-block mb-2">
             <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{ client.name }}</h5>
-                <small>ID: {{ client.id }}</small>
+                <h5 class="mb-1 text-primary">{{ client.name }}</h5>
+                <small class="text-muted">ID: {{ client.id }}</small>
             </div>
-            <p class="mb-1">Телефон: {{ client.phone }}</p>
+            <p class="mb-1"><i class="bi bi-telephone"></i> {{ client.phone }}</p>
             {% if client.address %}
-            <small>Адрес: {{ client.address }}</small>
+            <small class="text-muted"><i class="bi bi-geo-alt"></i> {{ client.address }}</small>
             {% endif %}
         </a>
         {% endfor %}
     </div>
     {% elif request.args.get('search') %}
-    <div class="alert alert-info">
-        Клиенты не найдены. <a href="{{ url_for('register_client') }}">Зарегистрироваться</a>
+    <div class="alert alert-info mt-4">
+        Клиенты не найдены. <a href="{{ url_for('register_client') }}" class="alert-link">Зарегистрироваться</a>
     </div>
     {% endif %}
 </div>

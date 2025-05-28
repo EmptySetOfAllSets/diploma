@@ -1,11 +1,12 @@
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="container my-5">
-    <h2>Данные доставки</h2>
+<div class="container container-form animated">
+    <h2 class="mb-4">Данные доставки</h2>
     
-    <div class="alert alert-info mb-4">
-        <h5>Ваши данные:</h5>
+    <div class="alert delivery-info-card mb-4">
+        <h5 class="alert-heading">Ваши данные</h5>
+        <hr>
         <p><strong>Имя:</strong> {{ client.name }}</p>
         <p><strong>Телефон:</strong> {{ client.phone }}</p>
         {% if client.address %}
@@ -16,17 +17,17 @@
     <form method="POST">
         {{ form.hidden_tag() }}
         
-        <div class="mb-3">
-            {{ form.address.label }}
+        <div class="mb-4">
+            {{ form.address.label(class="form-label") }}
             {{ form.address(class="form-control", placeholder="Укажите адрес доставки") }}
         </div>
         
-        <div class="mb-3">
-            {{ form.comments.label }}
-            {{ form.comments(class="form-control", placeholder="Комментарии к доставке") }}
+        <div class="mb-4">
+            {{ form.comments.label(class="form-label") }}
+            {{ form.comments(class="form-control", placeholder="Комментарии к доставке", rows="3") }}
         </div>
         
-        <button type="submit" class="btn btn-primary">Продолжить к выбору блюд</button>
+        <button type="submit" class="btn btn-primary w-100 py-3">Продолжить к выбору блюд</button>
     </form>
 </div>
 {% endblock %}

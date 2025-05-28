@@ -1,67 +1,112 @@
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="container my-5">
-    <h2>Ваш заказ</h2>
-    <p>Адрес доставки: {{ order.delivery.adress }}</p>
+<div class="container container-form animated">
+    <h2 class="mb-4">Ваш заказ</h2>
+    <div class="delivery-address mb-4">
+        <i class="bi bi-geo-alt-fill text-primary"></i> 
+        <strong>Адрес доставки:</strong> {{ order.delivery.adress }}
+    </div>
     
     <div class="row">
-        <div class="col-md-8">
-            <h4>Добавить блюдо</h4>
-            <form method="POST" action="{{ url_for('add_order_position', order_id=order.id) }}">
-                {{ position_form.hidden_tag() }}
-                
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        {{ position_form.dish_id(class="form-select") }}
-                    </div>
-                    <div class="col-md-3">
-                        {{ position_form.quantity(class="form-control") }}
-                    </div>
-                    <div class="col-md-3">
-                        <button type="submit" class="btn btn-primary w-100">Добавить</button>
-                    </div>
-                </div>
-            </form>
-            
-            <h4 class="mt-4">Ваши позиции</h4>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Блюдо</th>
-                        <th>Количество</th>
-                        <th>Цена</th>
-                        <th>Действия</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for position in order.positions %}
-                    <tr>
-                        <td>{{ position.dish.name }}</td>
-                        <td>{{ position.amount }}</td>
-                        <td>{{ position.price }} руб.</td>
-                        <td>
-                            <form method="POST" action="{{ url_for('delete_order_position', position_id=position.id) }}" 
-                                  class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('Удалить позицию?')">
-                                    Удалить
+        <!-- Блок добавления позиций -->
+        <div class="col-lg-8 order-lg-1 order-2">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">Добавить блюдо</h4>
+                    <form method="POST" action="{{ url_for('add_order_position', order_id=order.id) }}">
+                        {{ position_form.hidden_tag() }}
+                        
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-6">
+                                <label class="form-label">Блюдо</label>
+                                {{ position_form.dish_id(class="form-select") }}
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Кол-во</label>
+                                {{ position_form.quantity(class="form-control") }}
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-plus-lg"></i> Добавить
                                 </button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="col-md-4">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Список позиций -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Итого</h5>
-                    <p class="card-text">{{ order.price }} руб.</p>
+                    <h4 class="card-title mb-4">Ваши позиции</h4>
+                    
+                    <div class="table-responsive">
+                        <table class="table position-table">
+                            <thead>
+                                <tr>
+                                    <th>Блюдо</th>
+                                    <th class="text-center">Кол-во</th>
+                                    <th class="text-end">Цена</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for position in order.positions %}
+                                <tr>
+                                    <td class="align-middle">
+                                        <strong>{{ position.dish.name }}</strong>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        <form method="POST" action="{{ url_for('update_position_amount', position_id=position.id) }}" class="d-inline">
+                                            <div class="input-group input-group-sm" style="max-width: 120px; margin: 0 auto;">
+                                                <input type="number" name="amount" value="{{ position.amount }}" min="1" 
+                                                       class="form-control text-center">
+                                                <button type="submit" class="btn btn-outline-primary">✓</button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="align-middle text-end">
+                                        {{ position.price }} ₽
+                                    </td>
+                                    <td class="align-middle text-end">
+                                        <form method="POST" action="{{ url_for('delete_order_position', position_id=position.id) }}" 
+                                              class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Удалить позицию?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Блок итого -->
+        <div class="col-lg-4 order-lg-2 order-1 mb-4 mb-lg-0">
+            <div class="card order-summary-card sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Итого</h5>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Позиций:</span>
+                        
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Сумма:</span>
+                        <strong class="fs-4">{{ order.price }} ₽</strong>
+                    </div>
+                    
                     <form method="POST" action="{{ url_for('confirm_order', order_id=order.id) }}">
-                        <button type="submit" class="btn btn-success w-100">Подтвердить заказ</button>
+                        <button type="submit" class="btn btn-success w-100 py-3">
+                            <i class="bi bi-check-lg"></i> Подтвердить заказ
+                        </button>
                     </form>
                 </div>
             </div>

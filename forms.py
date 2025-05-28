@@ -129,7 +129,7 @@ class OrderForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(OrderForm, self).__init__(*args, **kwargs)
         self.client_id.choices = [(c.id, f"{c.name} ({c.phone})") for c in Client.query.all()]
-        self.delivery_id.choices = [(d.id, d.description) for d in Delivery.query.all()]
+        self.delivery_id.choices = [(d.id, d.adress) for d in Delivery.query.all()]
         self.order_status_id.choices = [(s.id, s.name) for s in Order_status.query.all()]
 
 class PositionForm(FlaskForm):
@@ -138,6 +138,15 @@ class PositionForm(FlaskForm):
         DataRequired(),
         NumberRange(min=0)
     ])
+    amount = IntegerField('Количество', default=1, validators=[
+        DataRequired(),
+        NumberRange(min=1)
+    ])
+    
+    def __init__(self, *args, **kwargs):
+        super(PositionForm, self).__init__(*args, **kwargs)
+        self.dish_id.choices = [(d.id, f"{d.name} ({d.price} руб.)") 
+                              for d in Dish.query.filter_by(avaliable=True)]
 
 class DeliveryForm(FlaskForm):
     description = StringField('Описание', validators=[DataRequired()])

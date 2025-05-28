@@ -618,6 +618,7 @@ def init_routes(app):
     def edit_order(id):
         order = Order.query.get_or_404(id)
         form = OrderForm(obj=order)
+        # form = PositionForm(obj=order)
         
         if form.validate_on_submit():
             form.populate_obj(order)
@@ -649,32 +650,33 @@ def init_routes(app):
         
         return redirect(url_for('admin_clients_orders', tab='orders'))    
 
-    @app.route('/admin/positions/add/<int:order_id>', methods=['GET', 'POST'])
-    @login_required
-    def add_position(order_id):
-        order = Order.query.get_or_404(order_id)
-        form = PositionForm()
-        form.dish_id.choices = [(d.id, f"{d.name} ({d.price} руб.)") for d in Dish.query.filter_by(avaliable=True)]
+    # @app.route('/admin/positions/add/<int:order_id>', methods=['GET', 'POST'])
+    # @login_required
+    # def add_position(order_id):
+    #     order = Order.query.get_or_404(order_id)
+    #     form = PositionForm()
+    #     form.dish_id.choices = [(d.id, f"{d.name} ({d.price} руб.)") for d in Dish.query.filter_by(avaliable=True)]
         
-        if form.validate_on_submit():
-            position = Position(
-                order_id=order_id,
-                dish_id=form.dish_id.data,
-                price=form.price.data
-            )
-            db.session.add(position)
+    #     if form.validate_on_submit():
+    #         position = Position(
+    #             order_id=order_id,
+    #             dish_id=form.dish_id.data,
+    #             amount=form.amount.data,
+    #             price=form.price.data * form.amount.data,
+    #         )
+    #         db.session.add(position)
             
-            # Обновляем общую сумму заказа
-            order.price = sum(p.price for p in order.positions) 
-            db.session.commit()
+    #         # Обновляем общую сумму заказа
+    #         order.price = sum(p.price for p in order.positions) 
+    #         db.session.commit()
             
-            flash('Позиция добавлена', 'success')
-            return redirect(url_for('edit_order', id=order_id))
+    #         flash('Позиция добавлена', 'success')
+    #         return redirect(url_for('edit_order', id=order_id))
         
-        return render_template('admin/edit_position.html',
-                            form=form,
-                            title='Добавить позицию',
-                            order=order)
+    #     return render_template('admin/edit_position.html',
+    #                         form=form,
+    #                         title='Добавить позицию',
+    #                         order=order)
 
     @app.route('/admin/positions/delete/<int:id>', methods=['POST'])
     @login_required
@@ -1049,3 +1051,54 @@ def init_routes(app):
         session.pop('current_order_id', None)
         
         return redirect(url_for('index'))
+    
+    @app.route('/admin/positions/<int:position_id>/update-amount', methods=['POST'])
+    @login_required
+    def update_position_amount(position_id):
+        position = Position.query.get_or_404(position_id)
+        new_amount = int(request.form.get('amount', 1))
+        
+        if new_amount < 1:
+            flash('Количество не может быть меньше 1', 'danger')
+            return redirect(url_for('edit_order', id=position.order_id))
+        
+        # Обновляем количество и пересчитываем цену
+        dish = Dish.query.get(position.dish_id)
+        position.amount = new_amount
+        position.price = dish.price * new_amount
+        
+        # Обновляем общую сумму заказа
+        order = Order.query.get(position.order_id)
+        order.price = sum(p.price for p in order.positions)
+        
+        db.session.commit()
+        flash('Количество обновлено', 'success')
+        return redirect(url_for('edit_order', id=position.order_id))
+
+    @app.route('/admin/positions/add/<int:order_id>', methods=['GET', 'POST'])
+    @login_required
+    def add_position(order_id):
+        order = Order.query.get_or_404(order_id)
+        form = PositionForm()
+        
+        if form.validate_on_submit():
+            dish = Dish.query.get(form.dish_id.data)
+            position = Position(
+                order_id=order_id,
+                dish_id=dish.id,
+                amount=form.amount.data,
+                price=dish.price * form.amount.data
+            )
+            db.session.add(position)
+            
+            # Обновляем сумму заказа
+            order.price = sum(p.price for p in order.positions)
+            db.session.commit()
+            
+            flash('Позиция добавлена', 'success')
+            return redirect(url_for('edit_order', id=order_id))
+        
+        return render_template('admin/edit_position.html',
+                            form=form,
+                            title='Добавить позицию',
+                            order=order)
