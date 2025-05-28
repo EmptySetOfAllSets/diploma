@@ -155,8 +155,14 @@
                     <td>{{ delivery.status.name if delivery.status else 'Нет статуса' }}</td>
                     <td>
                         <a href="{{ url_for('edit_delivery', id=delivery.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
-                        <a href="{{ url_for('delete_delivery', id=delivery.id) }}" class="btn btn-sm btn-outline-danger" 
-                           onclick="return confirm('Удалить доставку?')">🗑️</a>
+                        <form action="{{ url_for('delete_delivery', id=delivery.id) }}" 
+                           method="POST" 
+                           onsubmit="return confirm('Удалить доставку? {{ delivery.adress }}?')">
+                         
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                Удалить
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
@@ -184,8 +190,14 @@
                             <td>{{ status.name }}</td>
                             <td>
                                 <a href="{{ url_for('edit_order_status', id=status.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
-                                <a href="{{ url_for('delete_order_status', id=status.id) }}" class="btn btn-sm btn-outline-danger" 
-                                   onclick="return confirm('Удалить статус?')">🗑️</a>
+                                <form action="{{ url_for('delete_order_status', id=status.id) }}" 
+                                   method="POST" 
+                                   onsubmit="return confirm('Удалить статус {{ status.name }}?')">
+                                 
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Удалить
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
@@ -211,8 +223,15 @@
                             <td>{{ status.name }}</td>
                             <td>
                                 <a href="{{ url_for('edit_delivery_status', id=status.id) }}" class="btn btn-sm btn-outline-primary">✏️</a>
-                                <a href="{{ url_for('delete_delivery_status', id=status.id) }}" class="btn btn-sm btn-outline-danger" 
-                                   onclick="return confirm('Удалить статус?')">🗑️</a>
+                                
+                                <form action="{{ url_for('delete_delivery_status', id=status.id) }}" 
+                                   method="POST" 
+                                   onsubmit="return confirm('Удалить статус {{ status.name }}?')">
+                                 
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Удалить
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                         {% endfor %}
