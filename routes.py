@@ -15,9 +15,6 @@ def init_routes(app):
     def inject_active_tab():
         return {'active_tab': request.args.get('tab', 'dishes')}
     
-    @app.route('/')
-    def index():
-        return render_template('index.html', title='Главная')
 
     @app.route('/admin/login', methods=['GET', 'POST'])
     def admin_login():
@@ -864,3 +861,20 @@ def init_routes(app):
             flash(f'Ошибка при удалении: {str(e)}', 'danger')
         
         return redirect(url_for('admin_clients_orders', tab='statuses'))
+    
+# Основные маршруты сайта
+    @app.route('/')
+    def index():
+        return render_template('index.html')
+
+    @app.route('/for-you')
+    def for_you():
+        return render_template('for_you.html')
+
+    @app.route('/about')
+    def about():
+        return render_template('about.html')
+
+    @app.route('/order')
+    def create_order():
+        return render_template('create_order.html')
