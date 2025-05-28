@@ -67,6 +67,7 @@ class Position(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # name = db.Column(db.String(300), nullable=False, index=True)
     price = db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Integer, primary_key=False, default = 1)
     # ingredients = db.relationship('Ingredient', backref='dish', lazy=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
     dish_id = db.Column(db.Integer, db.ForeignKey('dish.id'), nullable=False)

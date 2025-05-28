@@ -1,0 +1,32 @@
+{% extends "base_site.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Данные доставки</h2>
+    
+    <div class="alert alert-info mb-4">
+        <h5>Ваши данные:</h5>
+        <p><strong>Имя:</strong> {{ client.name }}</p>
+        <p><strong>Телефон:</strong> {{ client.phone }}</p>
+        {% if client.address %}
+        <p><strong>Адрес по умолчанию:</strong> {{ client.address }}</p>
+        {% endif %}
+    </div>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+            {{ form.address.label }}
+            {{ form.address(class="form-control", placeholder="Укажите адрес доставки") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.comments.label }}
+            {{ form.comments(class="form-control", placeholder="Комментарии к доставке") }}
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Продолжить к выбору блюд</button>
+    </form>
+</div>
+{% endblock %}

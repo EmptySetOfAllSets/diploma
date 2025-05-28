@@ -1,0 +1,39 @@
+{% extends "base_site.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Найдите себя в нашей базе</h2>
+    
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" class="form-control" 
+                   name="search" 
+                   placeholder="Введите имя или телефон..." 
+                   value="{{ request.args.get('search', '') }}">
+            <button class="btn btn-outline-secondary" type="submit">Поиск</button>
+        </div>
+    </form>
+    
+    {% if clients %}
+    <div class="list-group">
+        {% for client in clients %}
+        <a href="{{ url_for('select_client', client_id=client.id) }}" 
+           class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ client.name }}</h5>
+                <small>ID: {{ client.id }}</small>
+            </div>
+            <p class="mb-1">Телефон: {{ client.phone }}</p>
+            {% if client.address %}
+            <small>Адрес: {{ client.address }}</small>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+    {% elif request.args.get('search') %}
+    <div class="alert alert-info">
+        Клиенты не найдены. <a href="{{ url_for('register_client') }}">Зарегистрироваться</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

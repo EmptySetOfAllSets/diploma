@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, IntegerField, SelectField, TextAreaField, BooleanField, DateTimeField
-from wtforms.validators import DataRequired, NumberRange, Length, Regexp, Optional
+from wtforms.validators import DataRequired, NumberRange, Length, Regexp, Optional, Email
 from models import Groc_type, Groc_unit, Dish_type, Groc, Dish, Ingredient, Client, Order, Order_status, Delivery, Delivery_status
 import re
 from datetime import datetime
@@ -149,3 +149,26 @@ class OrderStatusForm(FlaskForm):
 
 class DeliveryStatusForm(FlaskForm):
     name = StringField('Название статуса', validators=[DataRequired()])
+
+class ClientRegistrationForm(FlaskForm):
+    name = StringField('Ваше имя', validators=[DataRequired()])
+    phone = StringField('Телефон', validators=[DataRequired()])
+    # address = StringField('Адрес доставки', validators=[DataRequired()])
+    # email = StringField('Email (необязательно)', validators=[Optional(), Email()])
+
+class DeliveryFormClient(FlaskForm):
+    address = StringField('Адрес доставки', validators=[DataRequired()])
+    comments = TextAreaField('Комментарии к доставке')
+
+class PositionFormClient(FlaskForm):
+    dish_id = SelectField('Блюдо', coerce=int, validators=[DataRequired()])
+    quantity = IntegerField('Количество', default=1, validators=[NumberRange(min=1)])
+    
+    def __init__(self, *args, **kwargs):
+        super(PositionFormClient, self).__init__(*args, **kwargs)
+        self.dish_id.choices = [(d.id, f"{d.name} - {d.price} руб.") 
+                              for d in Dish.query.filter_by(avaliable=True)]
+
+class FindClientForm(FlaskForm):
+    phone = StringField('Телефон', validators=[DataRequired()])
+    search = StringField('Поиск')

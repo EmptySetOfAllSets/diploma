@@ -62,14 +62,36 @@
         
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="{{ url_for('admin_clients_orders', tab='orders') }}" class="btn btn-secondary">Отмена</a>
-        
+    </form>
         {% if order %}
         <div class="mt-4">
             <h5>Позиции заказа:</h5>
-            <!-- Остальной код таблицы позиций -->
+            <h5>Позиции заказа:</h5>
+            <ul>
+                {% for position in order.positions %}
+                <tr>
+                    <td>{{ position.dish.name }}</td>
+                    <td>{{ position.price }} руб.</td>
+                    <td>
+                        <form action="{{ url_for('delete_position', id=position.id) }}" 
+                              method="POST" 
+                              onsubmit="return confirm('Удалить позицию {{ position.dish.name }}?')">
+                            
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                Удалить
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </ul>
+            <a href="{{ url_for('add_position', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                Добавить позицию
+            </a>
+        </div>
         </div>
         {% endif %}
-    </form>
+
 </div>
 
 <!-- Добавим datetime picker -->

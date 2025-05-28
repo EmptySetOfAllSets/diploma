@@ -1,11 +1,11 @@
 # routes.py
-from flask import render_template, redirect, url_for, request, flash
+from flask import render_template, redirect, url_for, request, flash, session
 from flask_login import login_user, logout_user, login_required, current_user
 from extensions import db
 from models import Admin, Dish, Groc, Ingredient, Groc_type, Groc_unit, Dish_type, Client, Order_status, Order, Delivery, Delivery_status, Position
 from forms import (ProductForm, DishForm, ProductTypeForm, UnitForm, DishTypeForm, 
                    IngredientForm, IngredientFormForDish, ClientForm, PositionForm, OrderForm,
-                   DeliveryForm, DeliveryStatusForm, OrderStatusForm,)
+                   DeliveryForm, DeliveryStatusForm, OrderStatusForm, ClientRegistrationForm,DeliveryFormClient,PositionFormClient)
 from datetime import datetime, timedelta
 
 
@@ -875,6 +875,177 @@ def init_routes(app):
     def about():
         return render_template('about.html')
 
-    @app.route('/order')
+
+    
+    @app.route('/order', methods=['GET', 'POST'])
     def create_order():
         return render_template('create_order.html')
+
+    @app.route('/order/register', methods=['GET', 'POST'])
+    def register_client():
+        form = ClientRegistrationForm()
+        
+        if form.validate_on_submit():
+            client = Client(
+                name=form.name.data,
+                phone=form.phone.data,
+                # address=form.address.data,
+                # email=form.email.data
+            )
+            db.session.add(client)
+            db.session.commit()
+            
+            session['client_id'] = client.id
+            return redirect(url_for('order_delivery'))
+        
+        return render_template('register_client.html', form=form)
+
+    # @app.route('/order/delivery', methods=['GET', 'POST'])
+    # def order_delivery():
+    #     client_id = session.get('client_id')
+    #     current_client = Client.query.get(client_id) if client_id else None
+    #     form = DeliveryFormClient()
+        
+    #     if form.validate_on_submit():
+    #         # Создаем заказ
+    #         order = Order(
+    #             name=f"Заказ от {datetime.now().strftime('%d.%m.%Y')}",
+    #             price=0,  # Будет обновляться при добавлении позиций
+    #             client_id=current_client.id if current_client else None,
+    #             order_status_id=1,  # Статус "Новый"
+    #             created_at=datetime.now()
+    #         )
+            
+    #         # Создаем доставку
+    #         delivery = Delivery(
+    #             adress=form.address.data,
+    #             description=form.comments.data,
+    #             delivery_status_id=1  # Статус "Ожидает подтверждения"
+    #         )
+            
+    #         db.session.add_all([order, delivery])
+    #         order.delivery = delivery
+    #         db.session.commit()
+            
+    #         session['current_order_id'] = order.id
+    #         return redirect(url_for('order_positions', order_id=order.id))
+        
+    #     return render_template('order_delivery.html', 
+    #                         form=form,
+    #                         current_client=current_client)
+    @app.route('/order/find-client', methods=['GET'])
+    def find_client():
+        search_query = request.args.get('search', '').strip()
+        clients = []
+        
+        if search_query:
+            clients = Client.query.filter(
+                db.or_(
+                    Client.name.ilike(f'%{search_query}%'),
+                    Client.phone.ilike(f'%{search_query}%')
+                )
+            ).limit(10).all()
+        
+        return render_template('find_client.html', 
+                            clients=clients,
+                            search_query=search_query)
+
+    @app.route('/order/select-client/<int:client_id>')
+    def select_client(client_id):
+        client = Client.query.get_or_404(client_id)
+        session['client_id'] = client.id
+        return redirect(url_for('order_delivery'))
+
+    @app.route('/order/delivery', methods=['GET', 'POST'])
+    def order_delivery():
+        if 'client_id' not in session:
+            return redirect(url_for('find_client'))
+        
+        client = Client.query.get(session['client_id'])
+        form = DeliveryFormClient()
+        
+        if form.validate_on_submit():
+            order = Order(
+                name=f"Заказ {client.name} от {datetime.now().strftime('%d.%m.%Y')}",
+                price=0,
+                client_id=client.id,
+                order_status_id=1,
+                created_at=datetime.now()
+            )
+            
+            delivery = Delivery(
+                adress=form.address.data,
+                description=form.comments.data,
+                delivery_status_id=1
+            )
+            
+            db.session.add_all([order, delivery])
+            order.delivery = delivery
+            db.session.commit()
+            
+            session['current_order_id'] = order.id
+            return redirect(url_for('order_positions', order_id=order.id))
+        
+        # Предзаполняем адрес из профиля клиента
+        # if client.address:
+        #     form.address.data = client.address
+        
+        return render_template('order_delivery.html',
+                            form=form,
+                            client=client)
+
+    @app.route('/order/<int:order_id>/positions', methods=['GET', 'POST'])
+    def order_positions(order_id):
+        order = Order.query.get_or_404(order_id)
+        position_form = PositionFormClient()
+        
+        return render_template('order_positions.html',
+                            order=order,
+                            position_form=position_form)
+
+    @app.route('/order/<int:order_id>/positions/add', methods=['POST'])
+    def add_order_position(order_id):
+        order = Order.query.get_or_404(order_id)
+        form = PositionFormClient()
+        
+        if form.validate_on_submit():
+            dish = Dish.query.get(form.dish_id.data)
+            
+            position = Position(
+                dish_id=dish.id,
+                order_id=order.id,
+                amount=form.quantity.data,
+                price=dish.price * form.quantity.data
+            )
+            
+            db.session.add(position)
+            
+            # Обновляем сумму заказа
+            order.price = sum(p.price for p in order.positions)
+            db.session.commit()
+        
+        return redirect(url_for('order_positions', order_id=order.id))
+
+    @app.route('/order/positions/<int:position_id>/delete', methods=['POST'])
+    def delete_order_position(position_id):
+        position = Position.query.get_or_404(position_id)
+        order_id = position.order_id
+        
+        db.session.delete(position)
+        
+        # Обновляем сумму заказа
+        order = Order.query.get(order_id)
+        order.price = sum(p.price for p in order.positions)
+        db.session.commit()
+        
+        return redirect(url_for('order_positions', order_id=order_id))
+
+    @app.route('/order/<int:order_id>/confirm', methods=['POST'])
+    def confirm_order(order_id):
+        order = Order.query.get_or_404(order_id)
+        
+        # Можно добавить дополнительные действия (отправка уведомлений и т.д.)
+        flash('Ваш заказ успешно оформлен!', 'success')
+        session.pop('current_order_id', None)
+        
+        return redirect(url_for('index'))

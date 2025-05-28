@@ -1,0 +1,26 @@
+{% extends "base_site.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <h2>Регистрация</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        
+        <div class="mb-3">
+            {{ form.name.label }}
+            {{ form.name(class="form-control") }}
+        </div>
+        
+        <div class="mb-3">
+            {{ form.phone.label }}
+            {{ form.phone(class="form-control") }}
+        </div>
+        
+
+        
+
+        
+        <button type="submit" class="btn btn-primary">Продолжить оформление</button>
+    </form>
+</div>
+{% endblock %}
