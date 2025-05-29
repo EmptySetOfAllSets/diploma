@@ -1,0 +1,437 @@
+/* Основные стили админки */
+.admin-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.admin-header {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-main {
+    flex: 1;
+    padding: 20px 0;
+}
+
+/* Карточки */
+.admin-card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* Таблицы */
+.admin-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    border-bottom-width: 1px;
+    font-weight: 600;
+}
+
+/* Кнопки действий */
+.action-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .admin-table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .admin-table {
+        min-width: 600px;
+    }
+    
+    .navbar-nav {
+        margin-top: 10px;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .btn-group .btn {
+        flex: 1;
+        min-width: 70px;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-main {
+        padding: 15px 0;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .input-group {
+        flex-wrap: wrap;
+    }
+    
+    .input-group > * {
+        margin-bottom: 5px;
+    }
+}
+
+/* Стили для страницы управления */
+.admin-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.admin-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 0.5rem;
+}
+
+.admin-search-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.admin-search-form {
+    flex: 1;
+    min-width: 250px;
+}
+
+.admin-tabs .nav-link {
+    font-weight: 500;
+    color: #495057;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s;
+}
+
+.admin-tabs .nav-link.active {
+    color: #e74c3c;
+    border-bottom: 3px solid #e74c3c;
+    background: transparent;
+}
+
+.admin-tabs .nav-link:hover:not(.active) {
+    color: #e74c3c;
+}
+
+.admin-table-container {
+    margin-top: 20px;
+}
+
+.admin-table-header {
+    margin-bottom: 15px;
+}
+
+.admin-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.admin-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-actions {
+    white-space: nowrap;
+}
+
+.admin-actions .btn {
+    margin-right: 5px;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .admin-search-container {
+        flex-direction: column;
+    }
+    
+    .admin-search-form {
+        width: 100%;
+    }
+    
+    .admin-tabs .nav-link {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .admin-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .admin-container {
+        padding: 15px;
+    }
+    
+    .admin-title {
+        font-size: 1.3rem;
+    }
+    
+    .admin-table th, 
+    .admin-table td {
+        padding: 0.5rem;
+    }
+    
+    .admin-actions .btn {
+        min-width: 30px;
+        padding: 0.25rem;
+    }
+}
+
+/* Стили для страницы управления меню */
+.menu-management {
+    background: white;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+    margin-top: 20px;
+}
+
+.menu-tabs {
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 20px;
+}
+
+.menu-tabs .nav-link {
+    color: #495057;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.menu-tabs .nav-link.active {
+    color: #e74c3c;
+    border-bottom: 3px solid #e74c3c;
+    background: transparent;
+}
+
+.menu-tabs .nav-link:hover:not(.active) {
+    color: #e74c3c;
+}
+
+.menu-search-form {
+    margin-bottom: 20px;
+}
+
+.menu-search-form .form-control {
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+
+.menu-search-form .btn {
+    border-radius: 20px;
+    padding: 10px 20px;
+}
+
+.menu-table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
+}
+
+.menu-table th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    padding: 12px;
+    background-color: #f8f9fa;
+}
+
+.menu-table td {
+    padding: 12px;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
+}
+
+.menu-table tr:hover {
+    background-color: rgba(0,0,0,0.02);
+}
+
+.menu-actions .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.ingredients-list {
+    padding-left: 20px;
+    margin-bottom: 0;
+}
+
+.ingredients-list li {
+    margin-bottom: 5px;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.show-all-checkbox {
+    margin-bottom: 15px;
+}
+
+.add-new-btn {
+    margin-top: 20px;
+}
+
+/* Стили для форм добавления */
+.admin-form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+.admin-form-title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    color: #2c3e50;
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 0.5rem;
+}
+
+.admin-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.admin-form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #495057;
+}
+
+.admin-form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.admin-form-control:focus {
+    border-color: #e74c3c;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(231, 76, 60, 0.25);
+}
+
+.admin-form-select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: white;
+}
+
+.admin-form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.admin-form-check input {
+    margin-right: 10px;
+}
+
+.admin-form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 15px;
+}
+
+.admin-form-btn {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-form-btn-primary {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.admin-form-btn-primary:hover {
+    background-color: #c0392b;
+}
+
+.admin-form-btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.admin-form-btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.ingredients-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.ingredients-list li {
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-form {
+    margin-bottom: 30px;
+}
+
+.current-ingredients {
+    margin-bottom: 30px;
+}

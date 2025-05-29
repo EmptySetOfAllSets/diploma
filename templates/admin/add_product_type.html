@@ -1,15 +1,22 @@
-{% extends "base.html" %}
-{% block title %}Добавить тип продукта{% endblock %}
-
+{% extends "/admin/admin_base.html" %}
 {% block content %}
-<h1>Добавить новый тип продукта</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.type.label }}<br>
-        {{ form.type(size=32) }}
-    </div>
-    <button type="submit">Сохранить</button>
-    <a href="{{ url_for('admin_menu', tab='types') }}">Отмена</a>
-</form>
+<div class="admin-form-container">
+    <h1 class="admin-form-title">Добавить новый тип продукта</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="admin-form-group">
+            {{ form.type.label }}
+            {{ form.type(class="admin-form-control") }}
+        </div>
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-form-btn admin-form-btn-primary">
+                Сохранить
+            </button>
+            <a href="{{ url_for('admin_menu', tab='types') }}" 
+               class="admin-form-btn admin-form-btn-secondary">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}

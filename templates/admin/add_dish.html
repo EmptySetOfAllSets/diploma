@@ -1,26 +1,30 @@
-{% extends "base.html" %}
-{% block title %}Добавить блюдо{% endblock %}
-
+{% extends "/admin/admin_base.html" %}
 {% block content %}
-<h1>Добавить новое блюдо</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.name.label }}<br>
-        {{ form.name(size=32) }}
-    </div>
-    <div>
-        {{ form.price.label }}<br>
-        {{ form.price() }}
-    </div>
-    <div>
-        {{ form.dish_type_id.label }}<br>
-        {{ form.dish_type_id() }}
-    </div>
-    <div>
-        {{ form.avaliable.label }}
-        {{ form.avaliable() }}
-    </div>
-    <button type="submit">Далее: добавить ингредиенты</button>
-</form>
+<div class="admin-form-container">
+    <h1 class="admin-form-title">Добавить новое блюдо</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="admin-form-group">
+            {{ form.name.label }}
+            {{ form.name(class="admin-form-control") }}
+        </div>
+        <div class="admin-form-group">
+            {{ form.price.label }}
+            {{ form.price(class="admin-form-control") }}
+        </div>
+        <div class="admin-form-group">
+            {{ form.dish_type_id.label }}
+            {{ form.dish_type_id(class="admin-form-select") }}
+        </div>
+        <div class="admin-form-check">
+            {{ form.avaliable() }}
+            {{ form.avaliable.label }}
+        </div>
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-form-btn admin-form-btn-primary">
+                Далее: добавить ингредиенты
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}

@@ -1,23 +1,30 @@
-{% extends "base.html" %}
-{% block title %}Добавить продукт{% endblock %}
-
+{% extends "/admin/admin_base.html" %}
 {% block content %}
-<h1>Добавить новый продукт</h1>
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div>
-        {{ form.name.label }}<br>
-        {{ form.name(size=32) }}
-    </div>
-    <div>
-        {{ form.type_id.label }}<br>
-        {{ form.type_id() }}
-    </div>
-    <div>
-        {{ form.unit_id.label }}<br>
-        {{ form.unit_id() }}
-    </div>
-    <button type="submit">Сохранить</button>
-    <a href="{{ url_for('admin_menu', tab='products') }}">Отмена</a>
-</form>
+<div class="admin-form-container">
+    <h1 class="admin-form-title">Добавить новый продукт</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="admin-form-group">
+            {{ form.name.label }}
+            {{ form.name(class="admin-form-control") }}
+        </div>
+        <div class="admin-form-group">
+            {{ form.type_id.label }}
+            {{ form.type_id(class="admin-form-select") }}
+        </div>
+        <div class="admin-form-group">
+            {{ form.unit_id.label }}
+            {{ form.unit_id(class="admin-form-select") }}
+        </div>
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-form-btn admin-form-btn-primary">
+                Сохранить
+            </button>
+            <a href="{{ url_for('admin_menu', tab='products') }}" 
+               class="admin-form-btn admin-form-btn-secondary">
+                Отмена
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}

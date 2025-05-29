@@ -1,17 +1,42 @@
-{% extends "base.html" %}
-{% block title %}Admin Panel{% endblock %}
+{% extends "/admin/admin_base.html" %}
+{% block title %}Админ-панель{% endblock %}
 
 {% block content %}
-<h1 class="my-4">Admin Dashboard</h1>
-<div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Welcome, {{ current_user.username }}!</h5>
-        <p class="card-text">This is your admin panel. You can manage the system from here.</p>
-        <a href="{{ url_for('admin_menu') }}" class="btn btn-primary">Управление меню</a>
-        <li class="nav-item">
-            <a class="nav-link" href="{{ url_for('admin_clients_orders') }}">Клиенты и заказы</a>
-        </li>
-        <a href="{{ url_for('admin_logout') }}" class="btn btn-danger">Logout</a>
+<div class="row">
+    <div class="col-12">
+        <div class="admin-card card">
+            <div class="card-body">
+                <h1 class="h4 card-title mb-4">
+                    <i class="bi bi-speedometer2"></i> Панель управления
+                </h1>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Меню</h5>
+                                <p class="card-text">Управление блюдами и ингредиентами</p>
+                                <a href="{{ url_for('admin_menu') }}" class="btn btn-primary">
+                                    <i class="bi bi-menu-button"></i> Перейти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Клиенты и заказы</h5>
+                                <p class="card-text">Управление заказами и клиентами</p>
+                                <a href="{{ url_for('admin_clients_orders') }}" class="btn btn-primary">
+                                    <i class="bi bi-people"></i> Перейти
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

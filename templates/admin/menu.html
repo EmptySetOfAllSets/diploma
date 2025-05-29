@@ -1,236 +1,259 @@
-
-{% extends "base.html" %}
+{% extends "/admin/admin_base.html" %}
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель: Управление меню</title>
-</head>
-<body>
-    <h1>Управление меню</h1>
-    
-    <div>
-        <a href="{{ url_for('admin_panel') }}">Назад в админ-панель</a> |
-        <a href="{{ url_for('admin_logout') }}">Выйти</a>
-    </div>
-    
-    <!-- Поисковая строка -->
-    <form method="GET" action="{{ url_for('admin_menu') }}">
-        <input type="hidden" name="tab" value="{{ active_tab }}">
-        <input type="text" name="search" placeholder="
-            {% if active_tab == 'dishes' %}Поиск блюд...
-            {% elif active_tab == 'products' %}Поиск продуктов...
-            {% elif active_tab == 'types' %}Поиск типов...
-            {% elif active_tab == 'units' %}Поиск единиц...
-            {% elif active_tab == 'ingredients' %}Поиск ингредиентов...
-            {% endif %}" 
-            value="{{ request.args.get('search', '') }}">
-        <button type="submit">Искать</button>
-        {% if search_query %}
-            <a href="{{ url_for('admin_menu', tab=active_tab) }}">Сбросить</a>
-        {% endif %}
-    </form>
+<div class="menu-management">
+    <h1 class="admin-title">Управление меню</h1>
     
     <!-- Вкладки -->
-    <div>
-        <a href="{{ url_for('admin_menu') }}?tab=dishes">Блюда</a> |
-        <a href="{{ url_for('admin_menu') }}?tab=products">Продукты</a> |
-        <a href="{{ url_for('admin_menu') }}?tab=types">Типы продуктов</a> |
-        <a href="{{ url_for('admin_menu') }}?tab=units">Единицы измерения</a> |
-        <a href="{{ url_for('admin_menu') }}?tab=ingredients">Ингредиенты</a>
-    </div>
+    <ul class="nav menu-tabs">
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'dishes' %}active{% endif %}" 
+               href="{{ url_for('admin_menu') }}?tab=dishes">Блюда</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'products' %}active{% endif %}" 
+               href="{{ url_for('admin_menu') }}?tab=products">Продукты</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'types' %}active{% endif %}" 
+               href="{{ url_for('admin_menu') }}?tab=types">Типы продуктов</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'units' %}active{% endif %}" 
+               href="{{ url_for('admin_menu') }}?tab=units">Единицы измерения</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {% if active_tab == 'ingredients' %}active{% endif %}" 
+               href="{{ url_for('admin_menu') }}?tab=ingredients">Ингредиенты</a>
+        </li>
+    </ul>
+    
+    <!-- Поисковая строка -->
+    <form method="GET" action="{{ url_for('admin_menu') }}" class="menu-search-form">
+        <input type="hidden" name="tab" value="{{ active_tab }}">
+        <div class="input-group">
+            <input type="text" name="search" class="form-control" placeholder="
+                {% if active_tab == 'dishes' %}Поиск блюд...
+                {% elif active_tab == 'products' %}Поиск продуктов...
+                {% elif active_tab == 'types' %}Поиск типов...
+                {% elif active_tab == 'units' %}Поиск единиц...
+                {% elif active_tab == 'ingredients' %}Поиск ингредиентов...
+                {% endif %}" 
+                value="{{ request.args.get('search', '') }}">
+            <button type="submit" class="btn btn-primary">Искать</button>
+            {% if search_query %}
+                <a href="{{ url_for('admin_menu', tab=active_tab) }}" class="btn btn-outline-secondary">Сбросить</a>
+            {% endif %}
+        </div>
+    </form>
     
     <!-- Содержимое вкладок -->
     {% if active_tab == 'dishes' %}
-        <h2>Блюда</h2>
-        <div>
-            <label>
-                <input type="checkbox" id="show-all-admin" 
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Блюда</h2>
+            <div class="show-all-checkbox form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="show-all-admin" 
                        {% if show_all %}checked{% endif %}
                        onchange="updateUrlParam('show_all', this.checked)">
-                Показать неактуальные
-            </label>
+                <label class="form-check-label" for="show-all-admin">Показать неактуальные</label>
+            </div>
         </div>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Название</th>
-                    <th>Тип блюда</th>
-                    <th>Цена</th>
-                    <th>Состав</th>
-                    <th>Действия</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for dish in dishes %}
-                <tr>
-                    <td>{{ dish.id }}</td>
-                    <td>{{ dish.name }}</td>
-                    <td>{{ dish.dish_type.type }}</td>
-                    <td>{{ dish.price }} руб.</td>
-                    <td>
-                        <ul>
-                            {% for ingredient in dish.ingredients %}
-                            <li>
-                                {{ ingredient.groc.name }} - 
-                                {{ ingredient.amount }} {{ ingredient.groc.groc_unit.unit }}
-                                ({{ ingredient.description }})
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </td>
-                    <td>
-                        <a href="{{ url_for('edit_dish', id=dish.id) }}">Редактировать</a> |
-                        <a href="{{ url_for('delete_dish', id=dish.id) }}">Удалить</a>
+        
+        <div class="table-responsive">
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Тип блюда</th>
+                        <th>Цена</th>
+                        <th>Состав</th>
+                        <th>Действия</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dish in dishes %}
+                    <tr>
+                        <td>{{ dish.id }}</td>
+                        <td>{{ dish.name }}</td>
+                        <td>{{ dish.dish_type.type }}</td>
+                        <td>{{ dish.price }} руб.</td>
+                        <td>
+                            <ul class="ingredients-list">
+                                {% for ingredient in dish.ingredients %}
+                                <li>
+                                    {{ ingredient.groc.name }} - 
+                                    {{ ingredient.amount }} {{ ingredient.groc.groc_unit.unit }}
+                                    {% if ingredient.description %}({{ ingredient.description }}){% endif %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td class="menu-actions">
+                            <a href="{{ url_for('edit_dish', id=dish.id) }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <a href="{{ url_for('delete_dish', id=dish.id) }}" class="btn btn-sm btn-outline-danger">Удалить</a>
                             <a href="{{ url_for('toggle_dish_status', id=dish.id) }}"
+                               class="btn btn-sm btn-outline-secondary"
                                onclick="return confirm('Изменить статус блюда?')">
                                 {% if dish.avaliable %}Скрыть{% else %}Показать{% endif %}
                             </a>
-                    </td>
-                    <td>
-                        {% if dish.avaliable %}
-                            <span class="text-success">Актуально</span>
-                        {% else %}
-                            <span class="text-danger">Неактуально</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <script>
-            function updateUrlParam(key, value) {
-                const url = new URL(window.location.href);
-                url.searchParams.set(key, value);
-                window.location.href = url.toString();
-            }
-            </script>
-    <a href="{{ url_for('add_dish') }}">Добавить новое блюдо</a>
+                        </td>
+                        <td>
+                            <span class="status-badge {% if dish.avaliable %}status-active{% else %}status-inactive{% endif %}">
+                                {% if dish.avaliable %}Актуально{% else %}Неактуально{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('add_dish') }}" class="btn btn-primary add-new-btn">Добавить новое блюдо</a>
     
     {% elif active_tab == 'products' %}
-        <h2>Продукты</h2>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Название</th>
-                    <th>Тип продукта</th>
-                    <th>Единица измерения</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.id }}</td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.groc_type.type }}</td>
-                    <td>{{ product.groc_unit.unit }}</td>
-                    {% if active_tab == 'products' %}
-                    <td>
-                        <a href="{{ url_for('edit_' + active_tab[:-1], id=product.id) }}">Редактировать</a> |
-                        <a href="{{ url_for('delete_' + active_tab[:-1], id=product.id) }}" 
-                        onclick="return confirm('Вы уверены?')">Удалить</a>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Продукты</h2>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Тип продукта</th>
+                        <th>Единица измерения</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.name }}</td>
+                        <td>{{ product.groc_type.type }}</td>
+                        <td>{{ product.groc_unit.unit }}</td>
+                        <td class="menu-actions">
+                            <a href="{{ url_for('edit_product', id=product.id) }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <a href="{{ url_for('delete_product', id=product.id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Вы уверены?')">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('add_product') }}" class="btn btn-primary add-new-btn">Добавить новый продукт</a>
     
     {% elif active_tab == 'types' %}
-        <h2>Типы продуктов</h2>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Тип</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for type in types %}
-                <tr>
-                    <td>{{ type.id }}</td>
-                    <td>{{ type.type }}</td>
-                    {% if active_tab == 'types' %}
-                    <td>
-                        <a href="{{ url_for('edit_' + active_tab[:-1], id=type.id) }}">Редактировать</a> |
-                        <a href="{{ url_for('delete_' + active_tab[:-1], id=type.id) }}" 
-                        onclick="return confirm('Вы уверены?')">Удалить</a>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Типы продуктов</h2>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Тип</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for type in types %}
+                    <tr>
+                        <td>{{ type.id }}</td>
+                        <td>{{ type.type }}</td>
+                        <td class="menu-actions">
+                            <a href="{{ url_for('edit_' + active_tab[:-1], id=type.id) }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <a href="{{ url_for('delete_' + active_tab[:-1], id=type.id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Вы уверены?')">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('add_product_type') }}" class="btn btn-primary add-new-btn">Добавить новый тип</a>
     
     {% elif active_tab == 'units' %}
-        <h2>Единицы измерения</h2>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Единица</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for unit in units %}
-                <tr>
-                    <td>{{ unit.id }}</td>
-                    <td>{{ unit.unit }}</td>
-                    {% if active_tab == 'units' %}
-                    <td>
-                        <a href="{{ url_for('edit_' + active_tab[:-1], id=unit.id) }}">Редактировать</a> |
-                        <a href="{{ url_for('delete_' + active_tab[:-1], id=unit.id) }}" 
-                        onclick="return confirm('Вы уверены?')">Удалить</a>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Единицы измерения</h2>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Единица</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for unit in units %}
+                    <tr>
+                        <td>{{ unit.id }}</td>
+                        <td>{{ unit.unit }}</td>
+                        <td class="menu-actions">
+                            <a href="{{ url_for('edit_unit', id=unit.id) }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <a href="{{ url_for('delete_unit', id=unit.id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Вы уверены?')">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <a href="{{ url_for('add_unit') }}" class="btn btn-primary add-new-btn">Добавить новую единицу</a>
     
     {% elif active_tab == 'ingredients' %}
-        <h2>Ингредиенты</h2>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Блюдо</th>
-                    <th>Продукт</th>
-                    <th>Количество</th>
-                    <th>Описание</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ingredient in ingredients %}
-                <tr>
-                    <td>{{ ingredient.id }}</td>
-                    <td>{{ ingredient.dish.name }}</td>
-                    <td>{{ ingredient.groc.name }}</td>
-                    <td>{{ ingredient.amount }} {{ ingredient.groc.groc_unit.unit }}</td>
-                    <td>{{ ingredient.description }}</td>
-                    {% if active_tab == 'ingredients' %}
-                    <td>
-                        <a href="{{ url_for('edit_' + active_tab[:-1], id=ingredient.id) }}">Редактировать</a> |
-                        <a href="{{ url_for('delete_' + active_tab[:-1], id=ingredient.id) }}" 
-                        onclick="return confirm('Вы уверены?')">Удалить</a>
-                    </td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2>Ингредиенты</h2>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="menu-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Блюдо</th>
+                        <th>Продукт</th>
+                        <th>Количество</th>
+                        <th>Описание</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ingredient in ingredients %}
+                    <tr>
+                        <td>{{ ingredient.id }}</td>
+                        <td>{{ ingredient.dish.name }}</td>
+                        <td>{{ ingredient.groc.name }}</td>
+                        <td>{{ ingredient.amount }} {{ ingredient.groc.groc_unit.unit }}</td>
+                        <td>{{ ingredient.description }}</td>
+                        <td class="menu-actions">
+                            <a href="{{ url_for('edit_ingredient', id=ingredient.id) }}" class="btn btn-sm btn-outline-primary">Редактировать</a>
+                            <a href="{{ url_for('delete_ingredient', id=ingredient.id) }}" 
+                               class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Вы уверены?')">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
-    {% if active_tab == 'units' %}
-        <a href="{{ url_for('add_unit') }}" class="btn btn-primary">Добавить единицу</a>
-    {% elif active_tab == 'types' %}
-        <a href="{{ url_for('add_product_type') }}" class="btn btn-primary">Добавить тип</a>
-    {% elif active_tab == 'products' %}
-        <a href="{{ url_for('add_product') }}" class="btn btn-primary">Добавить продукт</a>
-    {% endif %}
-        <!-- В конец каждой таблицы в menu.html добавляем: -->
-
-</body>
-{% endblock%}
+    
+    <script>
+        function updateUrlParam(key, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(key, value);
+            window.location.href = url.toString();
+        }
+    </script>
+</div>
+{% endblock %}
