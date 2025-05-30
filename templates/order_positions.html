@@ -67,7 +67,7 @@
                                         </form>
                                     </td>
                                     <td class="align-middle text-end">
-                                        {{ position.price }} ₽
+                                        {{ position.price }} руб.
                                     </td>
                                     <td class="align-middle text-end">
                                         <form method="POST" action="{{ url_for('delete_order_position', position_id=position.id) }}" 
@@ -100,7 +100,7 @@
                     
                     <div class="d-flex justify-content-between mb-3">
                         <span>Сумма:</span>
-                        <strong class="fs-4">{{ order.price }} ₽</strong>
+                        <strong class="fs-4">{{ order.price }} руб.</strong>
                     </div>
                     
                     <form method="POST" action="{{ url_for('confirm_order', order_id=order.id) }}">

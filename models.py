@@ -114,3 +114,6 @@ class Delivery_status(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(300), nullable=False, index=True)
     deliveries = db.relationship('Delivery', backref='status', lazy=True)
+
+
+    

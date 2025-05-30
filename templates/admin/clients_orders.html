@@ -140,7 +140,7 @@
                             <td>{{ order.id }}</td>
                             <td>{{ order.name }}</td>
                             <td class="d-none d-md-table-cell">{{ order.client.name }}</td>
-                            <td>{{ order.price }} ₽</td>
+                            <td>{{ order.price }} руб.</td>
                             <td class="d-none d-lg-table-cell">{{ order.status.name }}</td>
                             <td class="admin-actions">
                                 <a href="{{ url_for('edit_order', id=order.id) }}" 
