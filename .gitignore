@@ -3,6 +3,7 @@
 .env
 bin/
 __pycache__/
+BPMN/
 include/
 lib/
 pyvenv.cfg

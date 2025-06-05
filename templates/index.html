@@ -1,9 +1,52 @@
+<!-- index.html -->
 {% extends "base_site.html" %}
 
 {% block content %}
-<div class="hero-section text-center py-5">
-    <h1 class="display-4">Добро пожаловать в "Бытро и вкусно"</h1>
-    <p class="lead">Мы готовим с любовью, доставляем с заботой</p>
-    <a href="{{ url_for('create_order') }}" class="btn btn-primary btn-lg mt-3">Оформить заказ</a>
-</div>
+<section class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-3 fw-bold mb-4">Добро пожаловать в "Быстро и вкусно"</h1>
+                <p class="lead fs-4 mb-5">Мы готовим с любовью, доставляем с заботой</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{{ url_for('create_order') }}" class="btn order-btn btn-lg px-4">Оформить заказ</a>
+                    <a href="{{ url_for('for_you') }}" class="btn btn-outline-primary btn-lg px-4">Наше меню</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col">
+                <h2 class="display-5 fw-bold">Почему выбирают нас?</h2>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="feature-card p-4 h-100">
+                    <i class="bi bi-clock fs-1 text-primary mb-3"></i>
+                    <h3>Быстро</h3>
+                    <p>Среднее время доставки - 30 минут</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-card p-4 h-100">
+                    <i class="bi bi-emoji-heart-eyes fs-1 text-primary mb-3"></i>
+                    <h3>Вкусно</h3>
+                    <p>Только свежие ингредиенты и проверенные рецепты</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="feature-card p-4 h-100">
+                    <i class="bi bi-wallet2 fs-1 text-primary mb-3"></i>
+                    <h3>Доступно</h3>
+                    <p>Приятные цены и регулярные акции</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

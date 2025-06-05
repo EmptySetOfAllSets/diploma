@@ -16,7 +16,18 @@
             {{ form.phone(class="form-control", placeholder="+375 (XX) XXX-XX-XX") }}
         </div>
         
-        <button type="submit" class="btn btn-primary w-100 py-3 mt-3">Продолжить оформление</button>
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="dataProcessingCheckbox" required>
+            <label class="form-check-label" for="dataProcessingCheckbox">Соглашаюсь с обработкой данных</label>
+        </div>
+        
+        <button type="submit" class="btn btn-primary w-100 py-3 mt-3" id="submitButton" disabled>Продолжить оформление</button>
     </form>
 </div>
+
+<script>
+    document.getElementById('dataProcessingCheckbox').addEventListener('change', function() {
+        document.getElementById('submitButton').disabled = !this.checked;
+    });
+</script>
 {% endblock %}

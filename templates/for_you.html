@@ -3,8 +3,45 @@
 {% block title %}Для вас - {{ super() }}{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Для вас</h1>
-    <p>Здесь будет информация о специальных предложениях и акциях</p>
+<div class="container-fluid px-0 py-4">
+    <h1 class="text-center mb-5">Наши специальные предложения</h1>
+    
+    <div id="offersCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            {% for item in carousel_items %}
+            <button type="button" data-bs-target="#offersCarousel" 
+                    data-bs-slide-to="{{ loop.index0 }}" 
+                    {% if loop.first %}class="active" aria-current="true"{% endif %}
+                    aria-label="Slide {{ loop.index }}"></button>
+            {% endfor %}
+        </div>
+        
+        <div class="carousel-inner rounded-3 shadow-lg">
+            {% for item in carousel_items %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                <img src="{{ item.image_url }}" class="d-block w-100" alt="{{ item.title }}">
+                <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-75 rounded p-3">
+                    <h3>{{ item.title }}</h3>
+                    <p>{{ item.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#offersCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Предыдущее</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#offersCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Следующее</span>
+        </button>
+    </div>
+    
+    <div class="mt-5 text-center">
+        <a href="{{ url_for('create_order') }}" class="btn order-btn btn-lg px-4">
+            <i class="bi bi-cart-plus"></i> Заказать сейчас
+        </a>
+    </div>
 </div>
 {% endblock %}

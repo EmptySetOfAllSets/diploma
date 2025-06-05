@@ -871,7 +871,24 @@ def init_routes(app):
 
     @app.route('/for-you')
     def for_you():
-        return render_template('for_you.html')
+        carousel_items = [
+            {
+                "image_url": "/static/images/offer1.jpg",
+                "title": "Специальное меню выходного дня",
+                "description": "Скидка 20% на все блюда по субботам и воскресеньям"
+            },
+            {
+                "image_url": "/static/images/offer2.jpg",
+                "title": "Бесплатная доставка",
+                "description": "При заказе от 50 рублей - доставка бесплатно"
+            },
+            {
+                "image_url": "/static/images/offer3.jpg",
+                "title": "Бизнес-ланч",
+                "description": "С 12:00 до 16:00 специальные комплексные обеды"
+            }
+        ]
+        return render_template('for_you.html', carousel_items=carousel_items)
 
     @app.route('/about')
     def about():

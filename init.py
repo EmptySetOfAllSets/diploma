@@ -62,11 +62,11 @@ def create_test_data():
 
         # 6. Создаем блюда
         dishes = [
-            Dish(name="Салат Цезарь", price=350, avaliable=True, dish_type_id=2),
-            Dish(name="Куриный суп", price=250, avaliable=True, dish_type_id=1),
-            Dish(name="Говяжий стейк", price=550, avaliable=True, dish_type_id=4),
-            Dish(name="Рис отварной", price=150, avaliable=True, dish_type_id=3),
-            Dish(name="Молочный коктейль", price=200, avaliable=False, dish_type_id=5)
+            Dish(name="Салат Цезарь", price=35, avaliable=True, dish_type_id=2),
+            Dish(name="Куриный суп", price=25, avaliable=True, dish_type_id=1),
+            Dish(name="Говяжий стейк", price=55, avaliable=True, dish_type_id=4),
+            Dish(name="Рис отварной", price=15, avaliable=True, dish_type_id=3),
+            Dish(name="Молочный коктейль", price=20, avaliable=False, dish_type_id=5)
         ]
         db.session.add_all(dishes)
         db.session.commit()
@@ -112,17 +112,17 @@ def create_test_data():
 
         # 10. Создаем клиентов
         clients = [
-            Client(name="Иван Иванов", phone="+79161234567"),
-            Client(name="Петр Петров", phone="+79167654321"),
-            Client(name="Ольга Сидорова", phone="+79169998877")
+            Client(name="Иван Иванов", phone="+375441234567"),
+            Client(name="Петр Петров", phone="+375299876543"),
+            Client(name="Ольга Сидорова", phone="+375299128347")
         ]
         db.session.add_all(clients)
 
         # 11. Создаем варианты доставки (сначала без статусов)
         deliveries = [
-            Delivery(description="Самовывоз", adress="ул. Пушкина, 10"),
-            Delivery(description="Курьером", adress="ул. Лермонтова, 15"),
-            Delivery(description="Доставка в офис", adress="ул. Гоголя, 20")
+            Delivery(description="Самовывоз", adress="ул. Ленина, 10"),
+            Delivery(description="Курьером", adress="пр. Октября, 50"),
+            Delivery(description="Доставка в офис", adress="ул. Белорусская, 20")
         ]
         db.session.add_all(deliveries)
         db.session.commit()
